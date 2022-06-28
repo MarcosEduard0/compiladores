@@ -1479,7 +1479,7 @@ yyreduce:
 
   case 3:
 #line 76 "mini_js.y"
-                          {
+                          {fecha_escopo();
             vector<string> c = resolve_enderecos(yyvsp[0].v);
             for (int i = 0; i < c.size(); i++){
                  cout << c[i];
@@ -2095,18 +2095,18 @@ vector<string> resolve_enderecos( vector<string> entrada ) {
   return saida;
 }
 
-void abre_escopo()
-{
+void abre_escopo(){
+
   map<string,Variavel> escopo;
   escopos.push_back(escopo);
 }
 
-void fecha_escopo()
-{
+void fecha_escopo(){
   escopos.pop_back();
 }
-void verificar_var(string nome)
-{
+
+void verificar_var(string nome){
+
   for(int i = 0; i < escopos.size(); i++)
   {
     map<string,Variavel> escopo = escopos[i];
@@ -2135,7 +2135,6 @@ void declarar_var(string nome)
     v.linha = linha;
     escopos.back()[nome] = v;
   }
-  
 }
 
 int main(){

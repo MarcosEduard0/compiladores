@@ -73,7 +73,7 @@ vector<string> operator+( string a, vector<string> b ) {
 
 %%
 
-ROOT  : {abre_escopo();}S {
+ROOT  : {abre_escopo();}S {fecha_escopo();
             vector<string> c = resolve_enderecos($2.v);
             for (int i = 0; i < c.size(); i++){
                  cout << c[i];
@@ -98,17 +98,17 @@ CMD :   A   ';'   {$$.v = $1.v + "^";}
     |   '{'{abre_escopo();} CMDs '}'  {fecha_escopo(); $$.v = $3.v;}
     ;
 
-VARIAVEL    :   LET NEWVAR      {var_type = "let"; $$.v = $2.v;}
-            |   VAR NEWVAR      {var_type = "var"; $$.v = $2.v;}
-            |   CONST NEWVAR    {var_type = "const"; $$.v = $2.v;}
+VARIAVEL    :   LET NOMEVAR      {var_type = "let"; $$.v = $2.v;}
+            |   VAR NOMEVAR      {var_type = "var"; $$.v = $2.v;}
+            |   CONST NOMEVAR    {var_type = "const"; $$.v = $2.v;}
             ;
 
-NEWVAR  : ID '=' A OTHERVAR {declarar_var($1.v[0]); $$.v = $1.v + "&" + $1.v + $3.v + "="+"^" + $4.v ; }
-        | ID  OTHERVAR      {declarar_var($1.v[0]); $$.v = $1.v + "&" + $2.v ;}
+NOMEVAR  : ID '=' A OUTRAVAR {declarar_var($1.v[0]); $$.v = $1.v + "&" + $1.v + $3.v + "="+"^" + $4.v ; }
+        | ID  OUTRAVAR      {declarar_var($1.v[0]); $$.v = $1.v + "&" + $2.v ;}
         ;
 
-OTHERVAR : ',' ID '=' A OTHERVAR  {declarar_var($2.v[0]); $$.v = $2.v + "&" + $2.v + $4.v + "="+ "^" + $5.v ; }
-         | ',' ID   OTHERVAR      {declarar_var($2.v[0]); $$.v = $2.v + "&" + $3.v ;}
+OUTRAVAR : ',' ID '=' A OUTRAVAR  {declarar_var($2.v[0]); $$.v = $2.v + "&" + $2.v + $4.v + "="+ "^" + $5.v ; }
+         | ',' ID   OUTRAVAR      {declarar_var($2.v[0]); $$.v = $2.v + "&" + $3.v ;}
          |  %empty                { $$.v.clear(); }                  
          ;
 
@@ -117,7 +117,7 @@ A   :   ID  '=' A                 {verificar_var($1.v[0]); $$.v = $1.v + $3.v + 
     |   ID LVALUEPROP '=' A       {$$.v = $1.v+ "@" + $2.v + $4.v + "[=]"; }
     |   ID LVALUEPROP             {$$.v = $1.v+ "@" + $2.v; }
     |   E                         
-    |   ID MAISIGUAL A OTHERVAR   {$$.v = $1.v + $1.v + "@" + $3.v + "+"+ "="; }
+    |   ID MAISIGUAL A OUTRAVAR   {$$.v = $1.v + $1.v + "@" + $3.v + "+"+ "="; }
     |   ID LVALUEPROP MAISIGUAL A { $$.v = $1.v+ "@" + $2.v + $1.v+ "@" + $2.v + "[@]" + $4.v + "+" + "[=]"; }
     |   RVALUE
     ;
@@ -248,18 +248,18 @@ vector<string> resolve_enderecos( vector<string> entrada ) {
   return saida;
 }
 
-void abre_escopo()
-{
+void abre_escopo(){
+
   map<string,Variavel> escopo;
   escopos.push_back(escopo);
 }
 
-void fecha_escopo()
-{
+void fecha_escopo(){
   escopos.pop_back();
 }
-void verificar_var(string nome)
-{
+
+void verificar_var(string nome){
+
   for(int i = 0; i < escopos.size(); i++)
   {
     map<string,Variavel> escopo = escopos[i];
@@ -288,7 +288,6 @@ void declarar_var(string nome)
     v.linha = linha;
     escopos.back()[nome] = v;
   }
-  
 }
 
 int main(){

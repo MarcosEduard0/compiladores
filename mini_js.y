@@ -31,8 +31,8 @@ int retorna( int tk );
 extern "C" int yylex();
 void declarar_var(string nome);
 void verificar_var(string nome);
-void abre_escopo();
-void fecha_escopo();
+void abrir_escopo();
+void fechar_escopo();
 
 int linha = 1;
 int coluna = 1;
@@ -64,7 +64,7 @@ vector<string> operator+( string a, vector<string> b ) {
 %}
 
 %token NUM STRING ID PRINT IF BOOL ELSE
-%token IGUAL DIFERENTE MAISMAIS
+%token IGUAL DIFERENTE MAISMAIS WHILE
 %token LET CONST VAR MAISIGUAL
 
 
@@ -73,7 +73,7 @@ vector<string> operator+( string a, vector<string> b ) {
 
 %%
 
-ROOT  : {abre_escopo();}S {fecha_escopo();
+ROOT  : {abrir_escopo();}S {fechar_escopo();
             vector<string> c = resolve_enderecos($2.v);
             for (int i = 0; i < c.size(); i++){
                  cout << c[i];
@@ -94,8 +94,9 @@ CMD :   A   ';'   {$$.v = $1.v + "^";}
     |   P       
     |   VARIAVEL 
     |   CMD_IF
+    |   CMD_WHILE
     |   ';'          { $$.v.clear(); }
-    |   '{'{abre_escopo();} CMDs '}'  {fecha_escopo(); $$.v = $3.v;}
+    |   '{'{abrir_escopo();} CMDs '}'  {fechar_escopo(); $$.v = $3.v;}
     ;
 
 VARIAVEL    :   LET NOMEVAR      {var_type = "let"; $$.v = $2.v;}
@@ -126,15 +127,21 @@ LVALUEPROP    :   '[' A ']' LVALUEPROP  { $$.v = $2.v + "[@]" + $4.v ; }
               |   '.' ID LVALUEPROP     { $$.v = $2.v + "[@]" + $3.v; }
               |   '[' A ']'             { $$.v =  $2.v; }
               |   '.' ID                { $$.v = $2.v; }
-              |   '+' A                 {$$.v = "[@]"+ $2.v + $1.v;}
-              |   '-' A                 {$$.v = "[@]"+ $2.v + $1.v;}
+              // |   '+' A                 {$$.v = "[@]"+ $2.v + $1.v;}
+              // |   '-' A                 {$$.v = "[@]"+ $2.v + $1.v;}
               ;
+CMD_WHILE : WHILE '(' EBOOL ')' CMD {
+                              string loop = gera_label("LBL_LOOP");
+                              string end_while = gera_label("LBL_ENDWHILE");
+                              $$.v.clear(); $$.v =  $$.v + (":" +loop) + $3.v + "!" + end_while + "?" + $5.v + loop + "#" + (":" + end_while);
+}
+          ;
 
 CMD_IF  : IF '(' EBOOL ')' CMD CMD_ELSE {
                               string then = gera_label("LBL_THEN");
                               string end_if = gera_label("LBL_ENDIF");
-                              // $$.v = $3.v + then + "?" + "#"+ (":" + then)+ $5.v + end_if + (":" + end_if);} 
-                              $$.v = $3.v + "!" + then +"?" + $5.v + end_if + "#" + (":" + then) + $6.v + (":" + end_if);
+                              // $$.v = $3.v + then + "?" +end_if+ "#"+ (":" + then)+ $5.v + (":"+end_if) + $6.v;
+                              $$.v = $3.v + "!" + then + "?" + $5.v + end_if + "#" + (":" + then) + $6.v + (":" + end_if);
                               } 
         ;
 
@@ -248,13 +255,13 @@ vector<string> resolve_enderecos( vector<string> entrada ) {
   return saida;
 }
 
-void abre_escopo(){
+void abrir_escopo(){
 
   map<string,Variavel> escopo;
   escopos.push_back(escopo);
 }
 
-void fecha_escopo(){
+void fechar_escopo(){
   escopos.pop_back();
 }
 

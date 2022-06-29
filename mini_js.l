@@ -20,6 +20,7 @@ BOOL        false|true
 "!="        {   return retorna(DIFERENTE);}
 "if"		{   return retorna(IF);}
 "else"		{   return retorna(ELSE);}
+"while"		{   return retorna(WHILE);}
 
 "\t"            { coluna += 4; }
 " "             { coluna++; }

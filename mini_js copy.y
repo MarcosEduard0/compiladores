@@ -9,7 +9,16 @@ using namespace std;
 struct Atributos {
   // string v;
   vector<string> v;
+  string var_type;
 };
+
+struct Variavel
+{
+  string var_type;
+  int linha;
+};
+
+vector <map<string, Variavel>> escopos;
 
 #define YYSTYPE Atributos
 
@@ -20,9 +29,14 @@ string gera_index();
 void yyerror( const char* );
 int retorna( int tk );
 extern "C" int yylex();
+void declarar_var(string nome);
+void verificar_var(string nome);
+void abre_escopo();
+void fecha_escopo();
 
 int linha = 1;
 int coluna = 1;
+string var_type = "let";
 
 vector<string> resolve_enderecos( vector<string> entrada );
 
@@ -59,8 +73,8 @@ vector<string> operator+( string a, vector<string> b ) {
 
 %%
 
-ROOT  : S {
-            vector<string> c = resolve_enderecos($1.v);
+ROOT  : {abre_escopo();}S {fecha_escopo();
+            vector<string> c = resolve_enderecos($2.v);
             for (int i = 0; i < c.size(); i++){
                  cout << c[i];
                  if(i+1 < c.size())
@@ -81,29 +95,29 @@ CMD :   A   ';'   {$$.v = $1.v + "^";}
     |   VARIAVEL 
     |   CMD_IF
     |   ';'          { $$.v.clear(); }
-    |   '{' CMDs '}'  {$$.v = $2.v;}
+    |   '{'{abre_escopo();} CMDs '}'  {fecha_escopo(); $$.v = $3.v;}
     ;
 
-VARIAVEL    :   LET NEWVAR      {$$.v = $2.v;}
-            |   VAR NEWVAR      {$$.v = $2.v;}
-            |   CONST NEWVAR    {$$.v = $2.v;}
+VARIAVEL    :   LET NOMEVAR      {var_type = "let"; $$.v = $2.v;}
+            |   VAR NOMEVAR      {var_type = "var"; $$.v = $2.v;}
+            |   CONST NOMEVAR    {var_type = "const"; $$.v = $2.v;}
             ;
 
-NEWVAR  : ID '=' A OTHERVAR { $$.v = $1.v + "&" + $1.v + $3.v + "="+"^" + $4.v ; }
-        | ID  OTHERVAR      { $$.v = $1.v + "&" + $2.v ;}
+NOMEVAR  : ID '=' A OUTRAVAR {declarar_var($1.v[0]); $$.v = $1.v + "&" + $1.v + $3.v + "="+"^" + $4.v ; }
+        | ID  OUTRAVAR      {declarar_var($1.v[0]); $$.v = $1.v + "&" + $2.v ;}
         ;
 
-OTHERVAR : ',' ID '=' A OTHERVAR  { $$.v = $2.v + "&" + $2.v + $4.v + "="+ "^" + $5.v ; }
-         | ',' ID   OTHERVAR      { $$.v = $2.v + "&" + $3.v ;}
+OUTRAVAR : ',' ID '=' A OUTRAVAR  {declarar_var($2.v[0]); $$.v = $2.v + "&" + $2.v + $4.v + "="+ "^" + $5.v ; }
+         | ',' ID   OUTRAVAR      {declarar_var($2.v[0]); $$.v = $2.v + "&" + $3.v ;}
          |  %empty                { $$.v.clear(); }                  
          ;
 
-A   :   ID  '=' A                 {$$.v = $1.v + $3.v + "=";}
+A   :   ID  '=' A                 {verificar_var($1.v[0]); $$.v = $1.v + $3.v + "=";}
     // |   ID LVALUEPROP '+' A       {$$.v = $1.v+ "@" + $2.v ; }
     |   ID LVALUEPROP '=' A       {$$.v = $1.v+ "@" + $2.v + $4.v + "[=]"; }
     |   ID LVALUEPROP             {$$.v = $1.v+ "@" + $2.v; }
     |   E                         
-    |   ID MAISIGUAL A OTHERVAR   {$$.v = $1.v + $1.v + "@" + $3.v + "+"+ "="; }
+    |   ID MAISIGUAL A OUTRAVAR   {$$.v = $1.v + $1.v + "@" + $3.v + "+"+ "="; }
     |   ID LVALUEPROP MAISIGUAL A { $$.v = $1.v+ "@" + $2.v + $1.v+ "@" + $2.v + "[@]" + $4.v + "+" + "[=]"; }
     |   RVALUE
     ;
@@ -137,7 +151,7 @@ EBOOL : A '<' A       { $$.v = $1.v  + $3.v + "<";}
       | BOOL          
       ;
 
-RVALUE  : ID MAISMAIS   {$$.v = $1.v + "@" + $1.v + $1.v + "@" + "1" + "+" + "=" + "^"; }
+RVALUE  : ID MAISMAIS   {verificar_var($1.v[0]); $$.v = $1.v + "@" + $1.v + $1.v + "@" + "1" + "+" + "=" + "^"; }
         ;
 
 P   :   PRINT   E   {$$.v = $2.v + " print #";}
@@ -232,6 +246,48 @@ vector<string> resolve_enderecos( vector<string> entrada ) {
         saida[i] = to_string(label[saida[i]]);
     
   return saida;
+}
+
+void abre_escopo(){
+
+  map<string,Variavel> escopo;
+  escopos.push_back(escopo);
+}
+
+void fecha_escopo(){
+  escopos.pop_back();
+}
+
+void verificar_var(string nome){
+
+  for(int i = 0; i < escopos.size(); i++)
+  {
+    map<string,Variavel> escopo = escopos[i];
+    if(escopo.count(nome) > 0)
+      return;
+    
+  }
+  cout << "Erro: a variável '" << nome << "' não foi declarada." << endl;
+  exit(1);
+}
+
+void declarar_var(string nome)
+{
+  // cout << nome<<endl;
+  map<string,Variavel> escopo = escopos.back();
+  if(escopo.count(nome) > 0 && (escopo[nome].var_type == "let" || escopo[nome].var_type == "var" || escopo[nome].var_type == "const"))
+  {
+    cout << "Erro: a variável '" << nome << "' já foi declarada na linha " << escopo[nome].linha << "." << endl;
+    exit(1);
+    
+  }
+  else{
+    Variavel v;
+    v.var_type = var_type;
+    // cout << "entrei "<< v.var_type << nome << linha <<endl;
+    v.linha = linha;
+    escopos.back()[nome] = v;
+  }
 }
 
 int main(){

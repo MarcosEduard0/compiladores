@@ -44,7 +44,7 @@ string var_type = "let";
 
 %token NUM STRING ID IF BOOL ELSE FOR
 %token IGUAL DIFERENTE MAISMAIS WHILE
-%token LET CONST VAR MAISIGUAL 
+%token LET CONST VAR MAISIGUAL COMENTARIO
 
 %left '+' '-'
 %left '*' '/'
@@ -54,37 +54,40 @@ string var_type = "let";
 ROOT  : {abrir_escopo();}CMDs {fechar_escopo(); imprimir_codigo($2.v);}
 
 CMDs  : CMD CMDs {$$.v = $1.v + $2.v;}
-      | %empty   { $$.v.clear(); } 
+      | CMD
       ;
 
-CMD :   A   ';'   {$$.v = $1.v + "^";}
-    |   VARIAVEL 
+CMD :   VARIAVEL ';'
     |   CMD_IF
+    |   CMD_IF_ELSE
     |   CMD_WHILE
     |   CMD_FOR
-    |   ';'          { $$.v.clear(); }
+    |   ';'     { $$.v.clear(); } 
     |   '{'{abrir_escopo();} CMDs '}'  {fechar_escopo(); $$.v = $3.v;}
     ;
 
 VARIAVEL    :   LET NOMEVAR      {var_type = "let"; $$.v = $2.v;}
             |   VAR NOMEVAR      {var_type = "var"; $$.v = $2.v;}
             |   CONST NOMEVAR    {var_type = "const"; $$.v = $2.v;}
+            |   A     {$$.v = $1.v + "^";}
             ;
 
-NOMEVAR   :   ID  '=' A ',' NOMEVAR {declarar_var($1.v[0]); $$.v = $1.v + "&" + $1.v + $3.v + "="+"^" + $5.v ; }
-          |   ID  ',' NOMEVAR      {declarar_var($1.v[0]); $$.v = $1.v + "&" + $3.v ;}
-          |   ID  '=' A             {declarar_var($1.v[0]); $$.v = $1.v + "&" + $3.v;}
-          |   ID
-          ;
+NOMEVAR  : ID '=' A OUTRAVAR {declarar_var($1.v[0]); $$.v = $1.v + "&" + $1.v + $3.v + "="+"^" + $4.v ; }
+        | ID  OUTRAVAR      {declarar_var($1.v[0]); $$.v = $1.v + "&" + $2.v ;}
+        ;
+
+OUTRAVAR : ',' NOMEVAR  {$$.v = $2.v; }
+         |  %empty      { $$.v.clear(); }                  
+         ;
 
 A   :   ID  '=' A                 {verificar_var($1.v[0]); $$.v = $1.v + $3.v + "=";}
-    // |   ID LVALUEPROP '+' A       {$$.v = $1.v+ "@" + $2.v ; }
     |   ID LVALUEPROP '=' A       {$$.v = $1.v+ "@" + $2.v + $4.v + "[=]"; }
-    |   ID LVALUEPROP '+' A       {$$.v = $1.v+ "@" + $2.v + "[@]"+$4.v + "+"; }
-    |   ID LVALUEPROP '-' A       {$$.v = $1.v+ "@" + $2.v +"[@]"+ $4.v + "-"; }
-    |   ID LVALUEPROP             {$$.v = $1.v+ "@" + $2.v; }
+    |   ID LVALUEPROP '+' A       {$$.v = $1.v+ "@" + $2.v + "[@]"+ $4.v + "+"; }
+    |   ID LVALUEPROP '-' A       {$$.v = $1.v+ "@" + $2.v + "[@]"+ $4.v + "-"; }
+    |   ID LVALUEPROP '*' A       {$$.v = $1.v+ "@" + $2.v + "[@]"+ $4.v + "*"; }
+    |   ID LVALUEPROP             {$$.v = $1.v+ "@" + $2.v + "[@]";}
     |   E                         
-    |   ID MAISIGUAL A NOMEVAR   {$$.v = $1.v + $1.v + "@" + $3.v + "+"+ "="; }
+    |   ID MAISIGUAL A OUTRAVAR   {$$.v = $1.v + $1.v + "@" + $3.v + "+"+ "="; }
     |   ID LVALUEPROP MAISIGUAL A { $$.v = $1.v+ "@" + $2.v + $1.v+ "@" + $2.v + "[@]" + $4.v + "+" + "[=]"; }
     |   RVALUE
     ;
@@ -96,31 +99,35 @@ LVALUEPROP    :   '[' A ']' LVALUEPROP  { $$.v = $2.v + "[@]" + $4.v ; }
               |   '[' A ']'             { $$.v =  $2.v; }
               |   '.' ID                { $$.v = $2.v; }
               ;
-CMD_WHILE : WHILE '(' E_BOOL ')' CMD {
+CMD_WHILE : WHILE '(' EBOOL ')' CMD {
                               string loop = gera_label("LBL_LOOP");
                               string end_while = gera_label("LBL_ENDWHILE");
                               $$.v.clear(); $$.v =  $$.v + (":" +loop) + $3.v + "!" + end_while + "?" + $5.v + loop + "#" + (":" + end_while);
                               }
           ;
 
-CMD_FOR : FOR '(' VARIAVEL ';' E_BOOL ';' A ')' CMD { 
+CMD_FOR : FOR '(' VARIAVEL ';' EBOOL ';' A ')' CMD { 
                               string loop = gera_label("LBL_LOOP");
                               string end_for = gera_label("LBL_ENDFOR");
                               $$.v = $3.v + (":" +loop) + $5.v + "!" + end_for + "?" + $9.v + $7.v + "^" + loop + "#" +(":" + end_for);}
 
-CMD_IF  : IF '(' E_BOOL ')' CMD CMD_ELSE {
+CMD_IF  : IF '(' EBOOL ')' CMD {
                               string then = gera_label("LBL_THEN");
                               string end_if = gera_label("LBL_ENDIF");
-                              // $$.v = $3.v + then + "?" +end_if+ "#"+ (":" + then)+ $5.v + (":"+end_if) + $6.v;
+                              $$.v = $3.v + "!" + then + "?" + $5.v + end_if + "#" + (":" + then) + (":" + end_if);
+                              } 
+        ;
+CMD_IF_ELSE  : IF '(' EBOOL ')' CMD CMD_ELSE {
+                              string then = gera_label("LBL_THEN");
+                              string end_if = gera_label("LBL_ENDIF");
                               $$.v = $3.v + "!" + then + "?" + $5.v + end_if + "#" + (":" + then) + $6.v + (":" + end_if);
                               } 
         ;
 
 CMD_ELSE  : ELSE  CMD   {$$.v = $2.v; }
-          | %empty      { $$.v.clear(); }
           ;
 
-E_BOOL : A '<' A       { $$.v = $1.v  + $3.v + "<";}
+EBOOL : A '<' A       { $$.v = $1.v  + $3.v + "<";}
       | A '>' A       { $$.v = $1.v  + $3.v + ">";}
       | A IGUAL A     { $$.v = $1.v  + $3.v + "==";}
       | A DIFERENTE A { $$.v = $1.v  + $3.v + "!=";}

@@ -54,21 +54,21 @@ string var_type = "let";
 ROOT  : {abrir_escopo();}CMDs {fechar_escopo(); imprimir_codigo($2.v);}
 
 CMDs  : CMD CMDs {$$.v = $1.v + $2.v;}
-      | %empty   { $$.v.clear(); } 
+      | CMD
       ;
 
-CMD :   A   ';'   {$$.v = $1.v + "^";}
-    |   VARIAVEL 
+CMD :   VARIAVEL ';'
     |   CMD_IF
     |   CMD_WHILE
     |   CMD_FOR
-    |   ';'          { $$.v.clear(); }
+    |   ';'     { $$.v.clear(); } 
     |   '{'{abrir_escopo();} CMDs '}'  {fechar_escopo(); $$.v = $3.v;}
     ;
 
 VARIAVEL    :   LET NOMEVAR      {var_type = "let"; $$.v = $2.v;}
             |   VAR NOMEVAR      {var_type = "var"; $$.v = $2.v;}
             |   CONST NOMEVAR    {var_type = "const"; $$.v = $2.v;}
+            |   A     {$$.v = $1.v + "^";}
             ;
 
 NOMEVAR  : ID '=' A OUTRAVAR {declarar_var($1.v[0]); $$.v = $1.v + "&" + $1.v + $3.v + "="+"^" + $4.v ; }
@@ -82,9 +82,10 @@ OUTRAVAR : ',' NOMEVAR  {$$.v = $2.v; }
 A   :   ID  '=' A                 {verificar_var($1.v[0]); $$.v = $1.v + $3.v + "=";}
     // |   ID LVALUEPROP '+' A       {$$.v = $1.v+ "@" + $2.v ; }
     |   ID LVALUEPROP '=' A       {$$.v = $1.v+ "@" + $2.v + $4.v + "[=]"; }
-    |   ID LVALUEPROP '+' A       {$$.v = $1.v+ "@" + $2.v + "[@]"+$4.v + "+"; }
-    |   ID LVALUEPROP '-' A       {$$.v = $1.v+ "@" + $2.v +"[@]"+ $4.v + "-"; }
-    |   ID LVALUEPROP             {$$.v = $1.v+ "@" + $2.v; }
+    |   ID LVALUEPROP '+' A       {$$.v = $1.v+ "@" + $2.v + "[@]"+ $4.v + "+"; }
+    |   ID LVALUEPROP '-' A       {$$.v = $1.v+ "@" + $2.v + "[@]"+ $4.v + "-"; }
+    |   ID LVALUEPROP '*' A       {$$.v = $1.v+ "@" + $2.v + "[@]"+ $4.v + "*"; }
+    |   ID LVALUEPROP             {$$.v = $1.v+ "@" + $2.v + "[@]";}
     |   E                         
     |   ID MAISIGUAL A OUTRAVAR   {$$.v = $1.v + $1.v + "@" + $3.v + "+"+ "="; }
     |   ID LVALUEPROP MAISIGUAL A { $$.v = $1.v+ "@" + $2.v + $1.v+ "@" + $2.v + "[@]" + $4.v + "+" + "[=]"; }

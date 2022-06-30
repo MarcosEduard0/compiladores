@@ -1,18 +1,9 @@
-State 6 conflicts: 2 shift/reduce
-State 14 conflicts: 1 shift/reduce
-State 21 conflicts: 23 reduce/reduce
-State 24 conflicts: 1 shift/reduce
-State 32 conflicts: 1 shift/reduce
-State 35 conflicts: 1 shift/reduce
-State 39 conflicts: 1 shift/reduce
-State 41 conflicts: 1 shift/reduce
-State 45 conflicts: 1 shift/reduce
-State 55 conflicts: 1 shift/reduce
-State 58 conflicts: 1 shift/reduce
-State 68 conflicts: 5 reduce/reduce
-State 82 conflicts: 1 shift/reduce
-State 96 conflicts: 1 shift/reduce
-State 105 conflicts: 1 shift/reduce
+State 15 conflicts: 1 shift/reduce
+State 22 conflicts: 9 reduce/reduce
+State 38 conflicts: 1 shift/reduce
+State 44 conflicts: 1 shift/reduce
+State 71 conflicts: 6 reduce/reduce
+State 109 conflicts: 1 shift/reduce
 
 
 Grammar
@@ -30,21 +21,20 @@ Grammar
     6    | VARIAVEL
     7    | CMD_IF
     8    | CMD_WHILE
-    9    | ';'
+    9    | CMD_FOR
+   10    | ';'
 
-   10 $@2: %empty
+   11 $@2: %empty
 
-   11 CMD: '{' $@2 CMDs '}'
+   12 CMD: '{' $@2 CMDs '}'
 
-   12 VARIAVEL: LET NOMEVAR
-   13         | VAR NOMEVAR
-   14         | CONST NOMEVAR
+   13 VARIAVEL: LET NOMEVAR
+   14         | VAR NOMEVAR
+   15         | CONST NOMEVAR
 
-   15 NOMEVAR: ID '=' A OUTRAVAR
-   16        | ID OUTRAVAR
-
-   17 OUTRAVAR: ',' NOMEVAR
-   18         | %empty
+   16 NOMEVAR: ID '=' A ',' NOMEVAR
+   17        | ID ',' NOMEVAR
+   18        | ID
 
    19 A: ID '=' A
    20  | ID LVALUEPROP '=' A
@@ -52,7 +42,7 @@ Grammar
    22  | ID LVALUEPROP '-' A
    23  | ID LVALUEPROP
    24  | E
-   25  | ID MAISIGUAL A OUTRAVAR
+   25  | ID MAISIGUAL A NOMEVAR
    26  | ID LVALUEPROP MAISIGUAL A
    27  | RVALUE
 
@@ -63,138 +53,141 @@ Grammar
    31           | '[' A ']'
    32           | '.' ID
 
-   33 CMD_WHILE: WHILE '(' EBOOL ')' CMD
+   33 CMD_WHILE: WHILE '(' E_BOOL ')' CMD
 
-   34 CMD_IF: IF '(' EBOOL ')' CMD CMD_ELSE
+   34 CMD_FOR: FOR '(' VARIAVEL ';' E_BOOL ';' A ')' CMD
 
-   35 CMD_ELSE: ELSE CMD
-   36         | %empty
+   35 CMD_IF: IF '(' E_BOOL ')' CMD CMD_ELSE
 
-   37 EBOOL: A '<' A
-   38      | A '>' A
-   39      | A IGUAL A
-   40      | A DIFERENTE A
-   41      | RVALUE
-   42      | E
-   43      | BOOL
+   36 CMD_ELSE: ELSE CMD
+   37         | %empty
 
-   44 E: E '+' E
-   45  | E '-' E
-   46  | E '*' E
-   47  | E '/' E
-   48  | RVALUE
-   49  | F
+   38 E_BOOL: A '<' A
+   39       | A '>' A
+   40       | A IGUAL A
+   41       | A DIFERENTE A
+   42       | RVALUE
+   43       | E
+   44       | BOOL
 
-   50 F: ID
-   51  | NUM
-   52  | STRING
-   53  | ID '(' ')'
-   54  | ID '(' ARGs ')'
-   55  | '(' E ')'
-   56  | '-' F
-   57  | F '!'
-   58  | '{' '}'
-   59  | '[' ']'
+   45 E: E '+' E
+   46  | E '-' E
+   47  | E '*' E
+   48  | E '/' E
+   49  | RVALUE
+   50  | F
 
-   60 ARGs: E ',' ARGs
-   61     | E
+   51 F: ID
+   52  | NUM
+   53  | STRING
+   54  | ID '(' ')'
+   55  | ID '(' ARGs ')'
+   56  | '(' E ')'
+   57  | '-' F
+   58  | F '!'
+   59  | '{' '}'
+   60  | '[' ']'
+
+   61 ARGs: E ',' ARGs
+   62     | E
 
 
 Terminals, with rules where they appear
 
     $end (0) 0
-    '!' (33) 57
-    '(' (40) 33 34 53 54 55
-    ')' (41) 33 34 53 54 55
-    '*' (42) 46
-    '+' (43) 21 44
-    ',' (44) 17 60
-    '-' (45) 22 45 56
+    '!' (33) 58
+    '(' (40) 33 34 35 54 55 56
+    ')' (41) 33 34 35 54 55 56
+    '*' (42) 47
+    '+' (43) 21 45
+    ',' (44) 16 17 61
+    '-' (45) 22 46 57
     '.' (46) 30 32
-    '/' (47) 47
-    ';' (59) 5 9
-    '<' (60) 37
-    '=' (61) 15 19 20
-    '>' (62) 38
-    '[' (91) 29 31 59
-    ']' (93) 29 31 59
-    '{' (123) 11 58
-    '}' (125) 11 58
+    '/' (47) 48
+    ';' (59) 5 10 34
+    '<' (60) 38
+    '=' (61) 16 19 20
+    '>' (62) 39
+    '[' (91) 29 31 60
+    ']' (93) 29 31 60
+    '{' (123) 12 59
+    '}' (125) 12 59
     error (256)
-    NUM (258) 51
-    STRING (259) 52
-    ID (260) 15 16 19 20 21 22 23 25 26 28 30 32 50 53 54
-    IF (261) 34
-    BOOL (262) 43
-    ELSE (263) 35
-    IGUAL (264) 39
-    DIFERENTE (265) 40
-    MAISMAIS (266) 28
-    WHILE (267) 33
-    LET (268) 12
-    CONST (269) 14
-    VAR (270) 13
-    MAISIGUAL (271) 25 26
+    NUM (258) 52
+    STRING (259) 53
+    ID (260) 16 17 18 19 20 21 22 23 25 26 28 30 32 51 54 55
+    IF (261) 35
+    BOOL (262) 44
+    ELSE (263) 36
+    FOR (264) 34
+    IGUAL (265) 40
+    DIFERENTE (266) 41
+    MAISMAIS (267) 28
+    WHILE (268) 33
+    LET (269) 13
+    CONST (270) 15
+    VAR (271) 14
+    MAISIGUAL (272) 25 26
 
 
 Nonterminals, with rules where they appear
 
-    $accept (34)
+    $accept (35)
         on left: 0
-    ROOT (35)
+    ROOT (36)
         on left: 2
         on right: 0
-    $@1 (36)
+    $@1 (37)
         on left: 1
         on right: 2
-    CMDs (37)
+    CMDs (38)
         on left: 3 4
-        on right: 2 3 11
-    CMD (38)
-        on left: 5 6 7 8 9 11
-        on right: 3 33 34 35
-    $@2 (39)
-        on left: 10
-        on right: 11
-    VARIAVEL (40)
-        on left: 12 13 14
-        on right: 6
-    NOMEVAR (41)
-        on left: 15 16
-        on right: 12 13 14 17
-    OUTRAVAR (42)
-        on left: 17 18
-        on right: 15 16 25
+        on right: 2 3 12
+    CMD (39)
+        on left: 5 6 7 8 9 10 12
+        on right: 3 33 34 35 36
+    $@2 (40)
+        on left: 11
+        on right: 12
+    VARIAVEL (41)
+        on left: 13 14 15
+        on right: 6 34
+    NOMEVAR (42)
+        on left: 16 17 18
+        on right: 13 14 15 16 17 25
     A (43)
         on left: 19 20 21 22 23 24 25 26 27
-        on right: 5 15 19 20 21 22 25 26 29 31 37 38 39 40
+        on right: 5 16 19 20 21 22 25 26 29 31 34 38 39 40 41
     RVALUE (44)
         on left: 28
-        on right: 27 41 48
+        on right: 27 42 49
     LVALUEPROP (45)
         on left: 29 30 31 32
         on right: 20 21 22 23 26 29 30
     CMD_WHILE (46)
         on left: 33
         on right: 8
-    CMD_IF (47)
+    CMD_FOR (47)
         on left: 34
+        on right: 9
+    CMD_IF (48)
+        on left: 35
         on right: 7
-    CMD_ELSE (48)
-        on left: 35 36
-        on right: 34
-    EBOOL (49)
-        on left: 37 38 39 40 41 42 43
-        on right: 33 34
-    E (50)
-        on left: 44 45 46 47 48 49
-        on right: 24 42 44 45 46 47 55 60 61
-    F (51)
-        on left: 50 51 52 53 54 55 56 57 58 59
-        on right: 49 56 57
-    ARGs (52)
-        on left: 60 61
-        on right: 54 60
+    CMD_ELSE (49)
+        on left: 36 37
+        on right: 35
+    E_BOOL (50)
+        on left: 38 39 40 41 42 43 44
+        on right: 33 34 35
+    E (51)
+        on left: 45 46 47 48 49 50
+        on right: 24 43 45 46 47 48 56 61 62
+    F (52)
+        on left: 51 52 53 54 55 56 57 58 59 60
+        on right: 50 57 58
+    ARGs (53)
+        on left: 61 62
+        on right: 55 61
 
 
 State 0
@@ -222,27 +215,29 @@ State 2
     STRING  shift, and go to state 5
     ID      shift, and go to state 6
     IF      shift, and go to state 7
-    WHILE   shift, and go to state 8
-    LET     shift, and go to state 9
-    CONST   shift, and go to state 10
-    VAR     shift, and go to state 11
-    '-'     shift, and go to state 12
-    ';'     shift, and go to state 13
-    '{'     shift, and go to state 14
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
+    FOR     shift, and go to state 8
+    WHILE   shift, and go to state 9
+    LET     shift, and go to state 10
+    CONST   shift, and go to state 11
+    VAR     shift, and go to state 12
+    '-'     shift, and go to state 13
+    ';'     shift, and go to state 14
+    '{'     shift, and go to state 15
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
 
     $default  reduce using rule 4 (CMDs)
 
-    CMDs       go to state 17
-    CMD        go to state 18
-    VARIAVEL   go to state 19
-    A          go to state 20
-    RVALUE     go to state 21
-    CMD_WHILE  go to state 22
-    CMD_IF     go to state 23
-    E          go to state 24
-    F          go to state 25
+    CMDs       go to state 18
+    CMD        go to state 19
+    VARIAVEL   go to state 20
+    A          go to state 21
+    RVALUE     go to state 22
+    CMD_WHILE  go to state 23
+    CMD_FOR    go to state 24
+    CMD_IF     go to state 25
+    E          go to state 26
+    F          go to state 27
 
 
 State 3
@@ -254,16 +249,16 @@ State 3
 
 State 4
 
-   51 F: NUM .
+   52 F: NUM .
 
-    $default  reduce using rule 51 (F)
+    $default  reduce using rule 52 (F)
 
 
 State 5
 
-   52 F: STRING .
+   53 F: STRING .
 
-    $default  reduce using rule 52 (F)
+    $default  reduce using rule 53 (F)
 
 
 State 6
@@ -273,135 +268,140 @@ State 6
    21  | ID . LVALUEPROP '+' A
    22  | ID . LVALUEPROP '-' A
    23  | ID . LVALUEPROP
-   25  | ID . MAISIGUAL A OUTRAVAR
+   25  | ID . MAISIGUAL A NOMEVAR
    26  | ID . LVALUEPROP MAISIGUAL A
    28 RVALUE: ID . MAISMAIS
-   50 F: ID .
-   53  | ID . '(' ')'
-   54  | ID . '(' ARGs ')'
+   51 F: ID .
+   54  | ID . '(' ')'
+   55  | ID . '(' ARGs ')'
 
-    MAISMAIS   shift, and go to state 26
-    MAISIGUAL  shift, and go to state 27
-    '='        shift, and go to state 28
-    '['        shift, and go to state 29
-    '.'        shift, and go to state 30
-    '('        shift, and go to state 31
+    MAISMAIS   shift, and go to state 28
+    MAISIGUAL  shift, and go to state 29
+    '='        shift, and go to state 30
+    '['        shift, and go to state 31
+    '.'        shift, and go to state 32
+    '('        shift, and go to state 33
 
-    '['       [reduce using rule 50 (F)]
-    '('       [reduce using rule 50 (F)]
-    $default  reduce using rule 50 (F)
+    $default  reduce using rule 51 (F)
 
-    LVALUEPROP  go to state 32
+    LVALUEPROP  go to state 34
 
 
 State 7
 
-   34 CMD_IF: IF . '(' EBOOL ')' CMD CMD_ELSE
+   35 CMD_IF: IF . '(' E_BOOL ')' CMD CMD_ELSE
 
-    '('  shift, and go to state 33
+    '('  shift, and go to state 35
 
 
 State 8
 
-   33 CMD_WHILE: WHILE . '(' EBOOL ')' CMD
+   34 CMD_FOR: FOR . '(' VARIAVEL ';' E_BOOL ';' A ')' CMD
 
-    '('  shift, and go to state 34
+    '('  shift, and go to state 36
 
 
 State 9
 
-   12 VARIAVEL: LET . NOMEVAR
+   33 CMD_WHILE: WHILE . '(' E_BOOL ')' CMD
 
-    ID  shift, and go to state 35
-
-    NOMEVAR  go to state 36
+    '('  shift, and go to state 37
 
 
 State 10
 
-   14 VARIAVEL: CONST . NOMEVAR
+   13 VARIAVEL: LET . NOMEVAR
 
-    ID  shift, and go to state 35
+    ID  shift, and go to state 38
 
-    NOMEVAR  go to state 37
+    NOMEVAR  go to state 39
 
 
 State 11
 
-   13 VARIAVEL: VAR . NOMEVAR
+   15 VARIAVEL: CONST . NOMEVAR
 
-    ID  shift, and go to state 35
+    ID  shift, and go to state 38
 
-    NOMEVAR  go to state 38
+    NOMEVAR  go to state 40
 
 
 State 12
 
-   56 F: '-' . F
+   14 VARIAVEL: VAR . NOMEVAR
 
-    NUM     shift, and go to state 4
-    STRING  shift, and go to state 5
-    ID      shift, and go to state 39
-    '-'     shift, and go to state 12
-    '{'     shift, and go to state 40
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
+    ID  shift, and go to state 38
 
-    F  go to state 41
+    NOMEVAR  go to state 41
 
 
 State 13
 
-    9 CMD: ';' .
+   57 F: '-' . F
 
-    $default  reduce using rule 9 (CMD)
+    NUM     shift, and go to state 4
+    STRING  shift, and go to state 5
+    ID      shift, and go to state 42
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
+
+    F  go to state 44
 
 
 State 14
 
-   11 CMD: '{' . $@2 CMDs '}'
-   58 F: '{' . '}'
+   10 CMD: ';' .
 
-    '}'  shift, and go to state 42
-
-    '}'       [reduce using rule 10 ($@2)]
-    $default  reduce using rule 10 ($@2)
-
-    $@2  go to state 43
+    $default  reduce using rule 10 (CMD)
 
 
 State 15
 
-   59 F: '[' . ']'
+   12 CMD: '{' . $@2 CMDs '}'
+   59 F: '{' . '}'
 
-    ']'  shift, and go to state 44
+    '}'  shift, and go to state 45
+
+    '}'       [reduce using rule 11 ($@2)]
+    $default  reduce using rule 11 ($@2)
+
+    $@2  go to state 46
 
 
 State 16
 
-   55 F: '(' . E ')'
+   60 F: '[' . ']'
 
-    NUM     shift, and go to state 4
-    STRING  shift, and go to state 5
-    ID      shift, and go to state 45
-    '-'     shift, and go to state 12
-    '{'     shift, and go to state 40
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
-
-    RVALUE  go to state 46
-    E       go to state 47
-    F       go to state 25
+    ']'  shift, and go to state 47
 
 
 State 17
+
+   56 F: '(' . E ')'
+
+    NUM     shift, and go to state 4
+    STRING  shift, and go to state 5
+    ID      shift, and go to state 48
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
+
+    RVALUE  go to state 49
+    E       go to state 50
+    F       go to state 27
+
+
+State 18
 
     2 ROOT: $@1 CMDs .
 
     $default  reduce using rule 2 (ROOT)
 
 
-State 18
+State 19
 
     3 CMDs: CMD . CMDs
 
@@ -409,185 +409,166 @@ State 18
     STRING  shift, and go to state 5
     ID      shift, and go to state 6
     IF      shift, and go to state 7
-    WHILE   shift, and go to state 8
-    LET     shift, and go to state 9
-    CONST   shift, and go to state 10
-    VAR     shift, and go to state 11
-    '-'     shift, and go to state 12
-    ';'     shift, and go to state 13
-    '{'     shift, and go to state 14
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
+    FOR     shift, and go to state 8
+    WHILE   shift, and go to state 9
+    LET     shift, and go to state 10
+    CONST   shift, and go to state 11
+    VAR     shift, and go to state 12
+    '-'     shift, and go to state 13
+    ';'     shift, and go to state 14
+    '{'     shift, and go to state 15
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
 
     $default  reduce using rule 4 (CMDs)
 
-    CMDs       go to state 48
-    CMD        go to state 18
-    VARIAVEL   go to state 19
-    A          go to state 20
-    RVALUE     go to state 21
-    CMD_WHILE  go to state 22
-    CMD_IF     go to state 23
-    E          go to state 24
-    F          go to state 25
+    CMDs       go to state 51
+    CMD        go to state 19
+    VARIAVEL   go to state 20
+    A          go to state 21
+    RVALUE     go to state 22
+    CMD_WHILE  go to state 23
+    CMD_FOR    go to state 24
+    CMD_IF     go to state 25
+    E          go to state 26
+    F          go to state 27
 
 
-State 19
+State 20
 
     6 CMD: VARIAVEL .
 
     $default  reduce using rule 6 (CMD)
 
 
-State 20
+State 21
 
     5 CMD: A . ';'
 
-    ';'  shift, and go to state 49
-
-
-State 21
-
-   27 A: RVALUE .
-   48 E: RVALUE .
-
-    $end       reduce using rule 27 (A)
-    $end       [reduce using rule 48 (E)]
-    NUM        reduce using rule 27 (A)
-    NUM        [reduce using rule 48 (E)]
-    STRING     reduce using rule 27 (A)
-    STRING     [reduce using rule 48 (E)]
-    ID         reduce using rule 27 (A)
-    ID         [reduce using rule 48 (E)]
-    IF         reduce using rule 27 (A)
-    IF         [reduce using rule 48 (E)]
-    ELSE       reduce using rule 27 (A)
-    ELSE       [reduce using rule 48 (E)]
-    IGUAL      reduce using rule 27 (A)
-    IGUAL      [reduce using rule 48 (E)]
-    DIFERENTE  reduce using rule 27 (A)
-    DIFERENTE  [reduce using rule 48 (E)]
-    WHILE      reduce using rule 27 (A)
-    WHILE      [reduce using rule 48 (E)]
-    LET        reduce using rule 27 (A)
-    LET        [reduce using rule 48 (E)]
-    CONST      reduce using rule 27 (A)
-    CONST      [reduce using rule 48 (E)]
-    VAR        reduce using rule 27 (A)
-    VAR        [reduce using rule 48 (E)]
-    '+'        reduce using rule 48 (E)
-    '-'        reduce using rule 27 (A)
-    '-'        [reduce using rule 48 (E)]
-    '*'        reduce using rule 48 (E)
-    '/'        reduce using rule 48 (E)
-    ';'        reduce using rule 27 (A)
-    ';'        [reduce using rule 48 (E)]
-    '{'        reduce using rule 27 (A)
-    '{'        [reduce using rule 48 (E)]
-    '}'        reduce using rule 27 (A)
-    '}'        [reduce using rule 48 (E)]
-    ','        reduce using rule 27 (A)
-    ','        [reduce using rule 48 (E)]
-    '['        reduce using rule 27 (A)
-    '['        [reduce using rule 48 (E)]
-    ']'        reduce using rule 27 (A)
-    ']'        [reduce using rule 48 (E)]
-    '('        reduce using rule 27 (A)
-    '('        [reduce using rule 48 (E)]
-    ')'        reduce using rule 27 (A)
-    ')'        [reduce using rule 48 (E)]
-    '<'        reduce using rule 27 (A)
-    '<'        [reduce using rule 48 (E)]
-    '>'        reduce using rule 27 (A)
-    '>'        [reduce using rule 48 (E)]
-    $default   reduce using rule 27 (A)
+    ';'  shift, and go to state 52
 
 
 State 22
+
+   27 A: RVALUE .
+   49 E: RVALUE .
+
+    ID         reduce using rule 27 (A)
+    ID         [reduce using rule 49 (E)]
+    IGUAL      reduce using rule 27 (A)
+    IGUAL      [reduce using rule 49 (E)]
+    DIFERENTE  reduce using rule 27 (A)
+    DIFERENTE  [reduce using rule 49 (E)]
+    '+'        reduce using rule 49 (E)
+    '-'        reduce using rule 49 (E)
+    '*'        reduce using rule 49 (E)
+    '/'        reduce using rule 49 (E)
+    ';'        reduce using rule 27 (A)
+    ';'        [reduce using rule 49 (E)]
+    ','        reduce using rule 27 (A)
+    ','        [reduce using rule 49 (E)]
+    ']'        reduce using rule 27 (A)
+    ']'        [reduce using rule 49 (E)]
+    ')'        reduce using rule 27 (A)
+    ')'        [reduce using rule 49 (E)]
+    '<'        reduce using rule 27 (A)
+    '<'        [reduce using rule 49 (E)]
+    '>'        reduce using rule 27 (A)
+    '>'        [reduce using rule 49 (E)]
+    $default   reduce using rule 27 (A)
+
+
+State 23
 
     8 CMD: CMD_WHILE .
 
     $default  reduce using rule 8 (CMD)
 
 
-State 23
+State 24
+
+    9 CMD: CMD_FOR .
+
+    $default  reduce using rule 9 (CMD)
+
+
+State 25
 
     7 CMD: CMD_IF .
 
     $default  reduce using rule 7 (CMD)
 
 
-State 24
+State 26
 
    24 A: E .
-   44 E: E . '+' E
-   45  | E . '-' E
-   46  | E . '*' E
-   47  | E . '/' E
+   45 E: E . '+' E
+   46  | E . '-' E
+   47  | E . '*' E
+   48  | E . '/' E
 
-    '+'  shift, and go to state 50
-    '-'  shift, and go to state 51
-    '*'  shift, and go to state 52
-    '/'  shift, and go to state 53
+    '+'  shift, and go to state 53
+    '-'  shift, and go to state 54
+    '*'  shift, and go to state 55
+    '/'  shift, and go to state 56
 
-    '-'       [reduce using rule 24 (A)]
     $default  reduce using rule 24 (A)
 
 
-State 25
+State 27
 
-   49 E: F .
-   57 F: F . '!'
+   50 E: F .
+   58 F: F . '!'
 
-    '!'  shift, and go to state 54
+    '!'  shift, and go to state 57
 
-    $default  reduce using rule 49 (E)
+    $default  reduce using rule 50 (E)
 
 
-State 26
+State 28
 
    28 RVALUE: ID MAISMAIS .
 
     $default  reduce using rule 28 (RVALUE)
 
 
-State 27
+State 29
 
-   25 A: ID MAISIGUAL . A OUTRAVAR
+   25 A: ID MAISIGUAL . A NOMEVAR
 
     NUM     shift, and go to state 4
     STRING  shift, and go to state 5
     ID      shift, and go to state 6
-    '-'     shift, and go to state 12
-    '{'     shift, and go to state 40
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
 
-    A       go to state 55
-    RVALUE  go to state 21
-    E       go to state 24
-    F       go to state 25
+    A       go to state 58
+    RVALUE  go to state 22
+    E       go to state 26
+    F       go to state 27
 
 
-State 28
+State 30
 
    19 A: ID '=' . A
 
     NUM     shift, and go to state 4
     STRING  shift, and go to state 5
     ID      shift, and go to state 6
-    '-'     shift, and go to state 12
-    '{'     shift, and go to state 40
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
 
-    A       go to state 56
-    RVALUE  go to state 21
-    E       go to state 24
-    F       go to state 25
+    A       go to state 59
+    RVALUE  go to state 22
+    E       go to state 26
+    F       go to state 27
 
 
-State 29
+State 31
 
    29 LVALUEPROP: '[' . A ']' LVALUEPROP
    31           | '[' . A ']'
@@ -595,46 +576,46 @@ State 29
     NUM     shift, and go to state 4
     STRING  shift, and go to state 5
     ID      shift, and go to state 6
-    '-'     shift, and go to state 12
-    '{'     shift, and go to state 40
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
 
-    A       go to state 57
-    RVALUE  go to state 21
-    E       go to state 24
-    F       go to state 25
+    A       go to state 60
+    RVALUE  go to state 22
+    E       go to state 26
+    F       go to state 27
 
 
-State 30
+State 32
 
    30 LVALUEPROP: '.' . ID LVALUEPROP
    32           | '.' . ID
 
-    ID  shift, and go to state 58
+    ID  shift, and go to state 61
 
 
-State 31
+State 33
 
-   53 F: ID '(' . ')'
-   54  | ID '(' . ARGs ')'
+   54 F: ID '(' . ')'
+   55  | ID '(' . ARGs ')'
 
     NUM     shift, and go to state 4
     STRING  shift, and go to state 5
-    ID      shift, and go to state 45
-    '-'     shift, and go to state 12
-    '{'     shift, and go to state 40
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
-    ')'     shift, and go to state 59
+    ID      shift, and go to state 48
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
+    ')'     shift, and go to state 62
 
-    RVALUE  go to state 46
-    E       go to state 60
-    F       go to state 25
-    ARGs    go to state 61
+    RVALUE  go to state 49
+    E       go to state 63
+    F       go to state 27
+    ARGs    go to state 64
 
 
-State 32
+State 34
 
    20 A: ID LVALUEPROP . '=' A
    21  | ID LVALUEPROP . '+' A
@@ -642,948 +623,1054 @@ State 32
    23  | ID LVALUEPROP .
    26  | ID LVALUEPROP . MAISIGUAL A
 
-    MAISIGUAL  shift, and go to state 62
-    '+'        shift, and go to state 63
-    '-'        shift, and go to state 64
-    '='        shift, and go to state 65
+    MAISIGUAL  shift, and go to state 65
+    '+'        shift, and go to state 66
+    '-'        shift, and go to state 67
+    '='        shift, and go to state 68
 
-    '-'       [reduce using rule 23 (A)]
     $default  reduce using rule 23 (A)
-
-
-State 33
-
-   34 CMD_IF: IF '(' . EBOOL ')' CMD CMD_ELSE
-
-    NUM     shift, and go to state 4
-    STRING  shift, and go to state 5
-    ID      shift, and go to state 6
-    BOOL    shift, and go to state 66
-    '-'     shift, and go to state 12
-    '{'     shift, and go to state 40
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
-
-    A       go to state 67
-    RVALUE  go to state 68
-    EBOOL   go to state 69
-    E       go to state 70
-    F       go to state 25
-
-
-State 34
-
-   33 CMD_WHILE: WHILE '(' . EBOOL ')' CMD
-
-    NUM     shift, and go to state 4
-    STRING  shift, and go to state 5
-    ID      shift, and go to state 6
-    BOOL    shift, and go to state 66
-    '-'     shift, and go to state 12
-    '{'     shift, and go to state 40
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
-
-    A       go to state 67
-    RVALUE  go to state 68
-    EBOOL   go to state 71
-    E       go to state 70
-    F       go to state 25
 
 
 State 35
 
-   15 NOMEVAR: ID . '=' A OUTRAVAR
-   16        | ID . OUTRAVAR
+   35 CMD_IF: IF '(' . E_BOOL ')' CMD CMD_ELSE
 
-    '='  shift, and go to state 72
-    ','  shift, and go to state 73
+    NUM     shift, and go to state 4
+    STRING  shift, and go to state 5
+    ID      shift, and go to state 6
+    BOOL    shift, and go to state 69
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
 
-    ','       [reduce using rule 18 (OUTRAVAR)]
-    $default  reduce using rule 18 (OUTRAVAR)
-
-    OUTRAVAR  go to state 74
+    A       go to state 70
+    RVALUE  go to state 71
+    E_BOOL  go to state 72
+    E       go to state 73
+    F       go to state 27
 
 
 State 36
 
-   12 VARIAVEL: LET NOMEVAR .
+   34 CMD_FOR: FOR '(' . VARIAVEL ';' E_BOOL ';' A ')' CMD
 
-    $default  reduce using rule 12 (VARIAVEL)
+    LET    shift, and go to state 10
+    CONST  shift, and go to state 11
+    VAR    shift, and go to state 12
+
+    VARIAVEL  go to state 74
 
 
 State 37
 
-   14 VARIAVEL: CONST NOMEVAR .
+   33 CMD_WHILE: WHILE '(' . E_BOOL ')' CMD
 
-    $default  reduce using rule 14 (VARIAVEL)
+    NUM     shift, and go to state 4
+    STRING  shift, and go to state 5
+    ID      shift, and go to state 6
+    BOOL    shift, and go to state 69
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
+
+    A       go to state 70
+    RVALUE  go to state 71
+    E_BOOL  go to state 75
+    E       go to state 73
+    F       go to state 27
 
 
 State 38
 
-   13 VARIAVEL: VAR NOMEVAR .
+   16 NOMEVAR: ID . '=' A ',' NOMEVAR
+   17        | ID . ',' NOMEVAR
+   18        | ID .
 
-    $default  reduce using rule 13 (VARIAVEL)
+    '='  shift, and go to state 76
+    ','  shift, and go to state 77
+
+    ','       [reduce using rule 18 (NOMEVAR)]
+    $default  reduce using rule 18 (NOMEVAR)
 
 
 State 39
 
-   50 F: ID .
-   53  | ID . '(' ')'
-   54  | ID . '(' ARGs ')'
+   13 VARIAVEL: LET NOMEVAR .
 
-    '('  shift, and go to state 31
-
-    '('       [reduce using rule 50 (F)]
-    $default  reduce using rule 50 (F)
+    $default  reduce using rule 13 (VARIAVEL)
 
 
 State 40
 
-   58 F: '{' . '}'
+   15 VARIAVEL: CONST NOMEVAR .
 
-    '}'  shift, and go to state 42
+    $default  reduce using rule 15 (VARIAVEL)
 
 
 State 41
 
-   56 F: '-' F .
-   57  | F . '!'
+   14 VARIAVEL: VAR NOMEVAR .
 
-    '!'  shift, and go to state 54
-
-    '!'       [reduce using rule 56 (F)]
-    $default  reduce using rule 56 (F)
+    $default  reduce using rule 14 (VARIAVEL)
 
 
 State 42
 
-   58 F: '{' '}' .
+   51 F: ID .
+   54  | ID . '(' ')'
+   55  | ID . '(' ARGs ')'
 
-    $default  reduce using rule 58 (F)
+    '('  shift, and go to state 33
+
+    $default  reduce using rule 51 (F)
 
 
 State 43
 
-   11 CMD: '{' $@2 . CMDs '}'
+   59 F: '{' . '}'
+
+    '}'  shift, and go to state 45
+
+
+State 44
+
+   57 F: '-' F .
+   58  | F . '!'
+
+    '!'  shift, and go to state 57
+
+    '!'       [reduce using rule 57 (F)]
+    $default  reduce using rule 57 (F)
+
+
+State 45
+
+   59 F: '{' '}' .
+
+    $default  reduce using rule 59 (F)
+
+
+State 46
+
+   12 CMD: '{' $@2 . CMDs '}'
 
     NUM     shift, and go to state 4
     STRING  shift, and go to state 5
     ID      shift, and go to state 6
     IF      shift, and go to state 7
-    WHILE   shift, and go to state 8
-    LET     shift, and go to state 9
-    CONST   shift, and go to state 10
-    VAR     shift, and go to state 11
-    '-'     shift, and go to state 12
-    ';'     shift, and go to state 13
-    '{'     shift, and go to state 14
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
+    FOR     shift, and go to state 8
+    WHILE   shift, and go to state 9
+    LET     shift, and go to state 10
+    CONST   shift, and go to state 11
+    VAR     shift, and go to state 12
+    '-'     shift, and go to state 13
+    ';'     shift, and go to state 14
+    '{'     shift, and go to state 15
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
 
     $default  reduce using rule 4 (CMDs)
 
-    CMDs       go to state 75
-    CMD        go to state 18
-    VARIAVEL   go to state 19
-    A          go to state 20
-    RVALUE     go to state 21
-    CMD_WHILE  go to state 22
-    CMD_IF     go to state 23
-    E          go to state 24
-    F          go to state 25
-
-
-State 44
-
-   59 F: '[' ']' .
-
-    $default  reduce using rule 59 (F)
-
-
-State 45
-
-   28 RVALUE: ID . MAISMAIS
-   50 F: ID .
-   53  | ID . '(' ')'
-   54  | ID . '(' ARGs ')'
-
-    MAISMAIS  shift, and go to state 26
-    '('       shift, and go to state 31
-
-    '('       [reduce using rule 50 (F)]
-    $default  reduce using rule 50 (F)
-
-
-State 46
-
-   48 E: RVALUE .
-
-    $default  reduce using rule 48 (E)
+    CMDs       go to state 78
+    CMD        go to state 19
+    VARIAVEL   go to state 20
+    A          go to state 21
+    RVALUE     go to state 22
+    CMD_WHILE  go to state 23
+    CMD_FOR    go to state 24
+    CMD_IF     go to state 25
+    E          go to state 26
+    F          go to state 27
 
 
 State 47
 
-   44 E: E . '+' E
-   45  | E . '-' E
-   46  | E . '*' E
-   47  | E . '/' E
-   55 F: '(' E . ')'
+   60 F: '[' ']' .
 
-    '+'  shift, and go to state 50
-    '-'  shift, and go to state 51
-    '*'  shift, and go to state 52
-    '/'  shift, and go to state 53
-    ')'  shift, and go to state 76
+    $default  reduce using rule 60 (F)
 
 
 State 48
+
+   28 RVALUE: ID . MAISMAIS
+   51 F: ID .
+   54  | ID . '(' ')'
+   55  | ID . '(' ARGs ')'
+
+    MAISMAIS  shift, and go to state 28
+    '('       shift, and go to state 33
+
+    $default  reduce using rule 51 (F)
+
+
+State 49
+
+   49 E: RVALUE .
+
+    $default  reduce using rule 49 (E)
+
+
+State 50
+
+   45 E: E . '+' E
+   46  | E . '-' E
+   47  | E . '*' E
+   48  | E . '/' E
+   56 F: '(' E . ')'
+
+    '+'  shift, and go to state 53
+    '-'  shift, and go to state 54
+    '*'  shift, and go to state 55
+    '/'  shift, and go to state 56
+    ')'  shift, and go to state 79
+
+
+State 51
 
     3 CMDs: CMD CMDs .
 
     $default  reduce using rule 3 (CMDs)
 
 
-State 49
+State 52
 
     5 CMD: A ';' .
 
     $default  reduce using rule 5 (CMD)
 
 
-State 50
-
-   44 E: E '+' . E
-
-    NUM     shift, and go to state 4
-    STRING  shift, and go to state 5
-    ID      shift, and go to state 45
-    '-'     shift, and go to state 12
-    '{'     shift, and go to state 40
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
-
-    RVALUE  go to state 46
-    E       go to state 77
-    F       go to state 25
-
-
-State 51
-
-   45 E: E '-' . E
-
-    NUM     shift, and go to state 4
-    STRING  shift, and go to state 5
-    ID      shift, and go to state 45
-    '-'     shift, and go to state 12
-    '{'     shift, and go to state 40
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
-
-    RVALUE  go to state 46
-    E       go to state 78
-    F       go to state 25
-
-
-State 52
-
-   46 E: E '*' . E
-
-    NUM     shift, and go to state 4
-    STRING  shift, and go to state 5
-    ID      shift, and go to state 45
-    '-'     shift, and go to state 12
-    '{'     shift, and go to state 40
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
-
-    RVALUE  go to state 46
-    E       go to state 79
-    F       go to state 25
-
-
 State 53
 
-   47 E: E '/' . E
+   45 E: E '+' . E
 
     NUM     shift, and go to state 4
     STRING  shift, and go to state 5
-    ID      shift, and go to state 45
-    '-'     shift, and go to state 12
-    '{'     shift, and go to state 40
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
+    ID      shift, and go to state 48
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
 
-    RVALUE  go to state 46
+    RVALUE  go to state 49
     E       go to state 80
-    F       go to state 25
+    F       go to state 27
 
 
 State 54
 
-   57 F: F '!' .
+   46 E: E '-' . E
 
-    $default  reduce using rule 57 (F)
+    NUM     shift, and go to state 4
+    STRING  shift, and go to state 5
+    ID      shift, and go to state 48
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
+
+    RVALUE  go to state 49
+    E       go to state 81
+    F       go to state 27
 
 
 State 55
 
-   25 A: ID MAISIGUAL A . OUTRAVAR
+   47 E: E '*' . E
 
-    ','  shift, and go to state 73
+    NUM     shift, and go to state 4
+    STRING  shift, and go to state 5
+    ID      shift, and go to state 48
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
 
-    ','       [reduce using rule 18 (OUTRAVAR)]
-    $default  reduce using rule 18 (OUTRAVAR)
-
-    OUTRAVAR  go to state 81
+    RVALUE  go to state 49
+    E       go to state 82
+    F       go to state 27
 
 
 State 56
+
+   48 E: E '/' . E
+
+    NUM     shift, and go to state 4
+    STRING  shift, and go to state 5
+    ID      shift, and go to state 48
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
+
+    RVALUE  go to state 49
+    E       go to state 83
+    F       go to state 27
+
+
+State 57
+
+   58 F: F '!' .
+
+    $default  reduce using rule 58 (F)
+
+
+State 58
+
+   25 A: ID MAISIGUAL A . NOMEVAR
+
+    ID  shift, and go to state 38
+
+    NOMEVAR  go to state 84
+
+
+State 59
 
    19 A: ID '=' A .
 
     $default  reduce using rule 19 (A)
 
 
-State 57
+State 60
 
    29 LVALUEPROP: '[' A . ']' LVALUEPROP
    31           | '[' A . ']'
 
-    ']'  shift, and go to state 82
-
-
-State 58
-
-   30 LVALUEPROP: '.' ID . LVALUEPROP
-   32           | '.' ID .
-
-    '['  shift, and go to state 29
-    '.'  shift, and go to state 30
-
-    '['       [reduce using rule 32 (LVALUEPROP)]
-    $default  reduce using rule 32 (LVALUEPROP)
-
-    LVALUEPROP  go to state 83
-
-
-State 59
-
-   53 F: ID '(' ')' .
-
-    $default  reduce using rule 53 (F)
-
-
-State 60
-
-   44 E: E . '+' E
-   45  | E . '-' E
-   46  | E . '*' E
-   47  | E . '/' E
-   60 ARGs: E . ',' ARGs
-   61     | E .
-
-    '+'  shift, and go to state 50
-    '-'  shift, and go to state 51
-    '*'  shift, and go to state 52
-    '/'  shift, and go to state 53
-    ','  shift, and go to state 84
-
-    $default  reduce using rule 61 (ARGs)
+    ']'  shift, and go to state 85
 
 
 State 61
 
-   54 F: ID '(' ARGs . ')'
+   30 LVALUEPROP: '.' ID . LVALUEPROP
+   32           | '.' ID .
 
-    ')'  shift, and go to state 85
+    '['  shift, and go to state 31
+    '.'  shift, and go to state 32
+
+    $default  reduce using rule 32 (LVALUEPROP)
+
+    LVALUEPROP  go to state 86
 
 
 State 62
+
+   54 F: ID '(' ')' .
+
+    $default  reduce using rule 54 (F)
+
+
+State 63
+
+   45 E: E . '+' E
+   46  | E . '-' E
+   47  | E . '*' E
+   48  | E . '/' E
+   61 ARGs: E . ',' ARGs
+   62     | E .
+
+    '+'  shift, and go to state 53
+    '-'  shift, and go to state 54
+    '*'  shift, and go to state 55
+    '/'  shift, and go to state 56
+    ','  shift, and go to state 87
+
+    $default  reduce using rule 62 (ARGs)
+
+
+State 64
+
+   55 F: ID '(' ARGs . ')'
+
+    ')'  shift, and go to state 88
+
+
+State 65
 
    26 A: ID LVALUEPROP MAISIGUAL . A
 
     NUM     shift, and go to state 4
     STRING  shift, and go to state 5
     ID      shift, and go to state 6
-    '-'     shift, and go to state 12
-    '{'     shift, and go to state 40
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
 
-    A       go to state 86
-    RVALUE  go to state 21
-    E       go to state 24
-    F       go to state 25
+    A       go to state 89
+    RVALUE  go to state 22
+    E       go to state 26
+    F       go to state 27
 
 
-State 63
+State 66
 
    21 A: ID LVALUEPROP '+' . A
 
     NUM     shift, and go to state 4
     STRING  shift, and go to state 5
     ID      shift, and go to state 6
-    '-'     shift, and go to state 12
-    '{'     shift, and go to state 40
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
 
-    A       go to state 87
-    RVALUE  go to state 21
-    E       go to state 24
-    F       go to state 25
+    A       go to state 90
+    RVALUE  go to state 22
+    E       go to state 26
+    F       go to state 27
 
 
-State 64
+State 67
 
    22 A: ID LVALUEPROP '-' . A
 
     NUM     shift, and go to state 4
     STRING  shift, and go to state 5
     ID      shift, and go to state 6
-    '-'     shift, and go to state 12
-    '{'     shift, and go to state 40
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
 
-    A       go to state 88
-    RVALUE  go to state 21
-    E       go to state 24
-    F       go to state 25
+    A       go to state 91
+    RVALUE  go to state 22
+    E       go to state 26
+    F       go to state 27
 
 
-State 65
+State 68
 
    20 A: ID LVALUEPROP '=' . A
 
     NUM     shift, and go to state 4
     STRING  shift, and go to state 5
     ID      shift, and go to state 6
-    '-'     shift, and go to state 12
-    '{'     shift, and go to state 40
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
 
-    A       go to state 89
-    RVALUE  go to state 21
-    E       go to state 24
-    F       go to state 25
-
-
-State 66
-
-   43 EBOOL: BOOL .
-
-    $default  reduce using rule 43 (EBOOL)
-
-
-State 67
-
-   37 EBOOL: A . '<' A
-   38      | A . '>' A
-   39      | A . IGUAL A
-   40      | A . DIFERENTE A
-
-    IGUAL      shift, and go to state 90
-    DIFERENTE  shift, and go to state 91
-    '<'        shift, and go to state 92
-    '>'        shift, and go to state 93
-
-
-State 68
-
-   27 A: RVALUE .
-   41 EBOOL: RVALUE .
-   48 E: RVALUE .
-
-    IGUAL      reduce using rule 27 (A)
-    IGUAL      [reduce using rule 48 (E)]
-    DIFERENTE  reduce using rule 27 (A)
-    DIFERENTE  [reduce using rule 48 (E)]
-    '+'        reduce using rule 48 (E)
-    '-'        reduce using rule 48 (E)
-    '*'        reduce using rule 48 (E)
-    '/'        reduce using rule 48 (E)
-    ')'        reduce using rule 41 (EBOOL)
-    ')'        [reduce using rule 48 (E)]
-    '<'        reduce using rule 27 (A)
-    '<'        [reduce using rule 48 (E)]
-    '>'        reduce using rule 27 (A)
-    '>'        [reduce using rule 48 (E)]
-    $default   reduce using rule 27 (A)
+    A       go to state 92
+    RVALUE  go to state 22
+    E       go to state 26
+    F       go to state 27
 
 
 State 69
 
-   34 CMD_IF: IF '(' EBOOL . ')' CMD CMD_ELSE
+   44 E_BOOL: BOOL .
 
-    ')'  shift, and go to state 94
+    $default  reduce using rule 44 (E_BOOL)
 
 
 State 70
 
-   24 A: E .
-   42 EBOOL: E .
-   44 E: E . '+' E
-   45  | E . '-' E
-   46  | E . '*' E
-   47  | E . '/' E
+   38 E_BOOL: A . '<' A
+   39       | A . '>' A
+   40       | A . IGUAL A
+   41       | A . DIFERENTE A
 
-    '+'  shift, and go to state 50
-    '-'  shift, and go to state 51
-    '*'  shift, and go to state 52
-    '/'  shift, and go to state 53
-
-    ')'       reduce using rule 42 (EBOOL)
-    $default  reduce using rule 24 (A)
+    IGUAL      shift, and go to state 93
+    DIFERENTE  shift, and go to state 94
+    '<'        shift, and go to state 95
+    '>'        shift, and go to state 96
 
 
 State 71
 
-   33 CMD_WHILE: WHILE '(' EBOOL . ')' CMD
+   27 A: RVALUE .
+   42 E_BOOL: RVALUE .
+   49 E: RVALUE .
 
-    ')'  shift, and go to state 95
+    IGUAL      reduce using rule 27 (A)
+    IGUAL      [reduce using rule 49 (E)]
+    DIFERENTE  reduce using rule 27 (A)
+    DIFERENTE  [reduce using rule 49 (E)]
+    '+'        reduce using rule 49 (E)
+    '-'        reduce using rule 49 (E)
+    '*'        reduce using rule 49 (E)
+    '/'        reduce using rule 49 (E)
+    ';'        reduce using rule 42 (E_BOOL)
+    ';'        [reduce using rule 49 (E)]
+    ')'        reduce using rule 42 (E_BOOL)
+    ')'        [reduce using rule 49 (E)]
+    '<'        reduce using rule 27 (A)
+    '<'        [reduce using rule 49 (E)]
+    '>'        reduce using rule 27 (A)
+    '>'        [reduce using rule 49 (E)]
+    $default   reduce using rule 27 (A)
 
 
 State 72
 
-   15 NOMEVAR: ID '=' . A OUTRAVAR
+   35 CMD_IF: IF '(' E_BOOL . ')' CMD CMD_ELSE
 
-    NUM     shift, and go to state 4
-    STRING  shift, and go to state 5
-    ID      shift, and go to state 6
-    '-'     shift, and go to state 12
-    '{'     shift, and go to state 40
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
-
-    A       go to state 96
-    RVALUE  go to state 21
-    E       go to state 24
-    F       go to state 25
+    ')'  shift, and go to state 97
 
 
 State 73
 
-   17 OUTRAVAR: ',' . NOMEVAR
+   24 A: E .
+   43 E_BOOL: E .
+   45 E: E . '+' E
+   46  | E . '-' E
+   47  | E . '*' E
+   48  | E . '/' E
 
-    ID  shift, and go to state 35
+    '+'  shift, and go to state 53
+    '-'  shift, and go to state 54
+    '*'  shift, and go to state 55
+    '/'  shift, and go to state 56
 
-    NOMEVAR  go to state 97
+    ';'       reduce using rule 43 (E_BOOL)
+    ')'       reduce using rule 43 (E_BOOL)
+    $default  reduce using rule 24 (A)
 
 
 State 74
 
-   16 NOMEVAR: ID OUTRAVAR .
+   34 CMD_FOR: FOR '(' VARIAVEL . ';' E_BOOL ';' A ')' CMD
 
-    $default  reduce using rule 16 (NOMEVAR)
+    ';'  shift, and go to state 98
 
 
 State 75
 
-   11 CMD: '{' $@2 CMDs . '}'
+   33 CMD_WHILE: WHILE '(' E_BOOL . ')' CMD
 
-    '}'  shift, and go to state 98
+    ')'  shift, and go to state 99
 
 
 State 76
 
-   55 F: '(' E ')' .
+   16 NOMEVAR: ID '=' . A ',' NOMEVAR
 
-    $default  reduce using rule 55 (F)
+    NUM     shift, and go to state 4
+    STRING  shift, and go to state 5
+    ID      shift, and go to state 6
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
+
+    A       go to state 100
+    RVALUE  go to state 22
+    E       go to state 26
+    F       go to state 27
 
 
 State 77
 
-   44 E: E . '+' E
-   44  | E '+' E .
-   45  | E . '-' E
-   46  | E . '*' E
-   47  | E . '/' E
+   17 NOMEVAR: ID ',' . NOMEVAR
 
-    '*'  shift, and go to state 52
-    '/'  shift, and go to state 53
+    ID  shift, and go to state 38
 
-    $default  reduce using rule 44 (E)
+    NOMEVAR  go to state 101
 
 
 State 78
 
-   44 E: E . '+' E
-   45  | E . '-' E
-   45  | E '-' E .
-   46  | E . '*' E
-   47  | E . '/' E
+   12 CMD: '{' $@2 CMDs . '}'
 
-    '*'  shift, and go to state 52
-    '/'  shift, and go to state 53
-
-    $default  reduce using rule 45 (E)
+    '}'  shift, and go to state 102
 
 
 State 79
 
-   44 E: E . '+' E
-   45  | E . '-' E
-   46  | E . '*' E
-   46  | E '*' E .
-   47  | E . '/' E
+   56 F: '(' E ')' .
 
-    $default  reduce using rule 46 (E)
+    $default  reduce using rule 56 (F)
 
 
 State 80
 
-   44 E: E . '+' E
-   45  | E . '-' E
-   46  | E . '*' E
-   47  | E . '/' E
-   47  | E '/' E .
+   45 E: E . '+' E
+   45  | E '+' E .
+   46  | E . '-' E
+   47  | E . '*' E
+   48  | E . '/' E
 
-    $default  reduce using rule 47 (E)
+    '*'  shift, and go to state 55
+    '/'  shift, and go to state 56
+
+    $default  reduce using rule 45 (E)
 
 
 State 81
 
-   25 A: ID MAISIGUAL A OUTRAVAR .
+   45 E: E . '+' E
+   46  | E . '-' E
+   46  | E '-' E .
+   47  | E . '*' E
+   48  | E . '/' E
 
-    $default  reduce using rule 25 (A)
+    '*'  shift, and go to state 55
+    '/'  shift, and go to state 56
+
+    $default  reduce using rule 46 (E)
 
 
 State 82
 
-   29 LVALUEPROP: '[' A ']' . LVALUEPROP
-   31           | '[' A ']' .
+   45 E: E . '+' E
+   46  | E . '-' E
+   47  | E . '*' E
+   47  | E '*' E .
+   48  | E . '/' E
 
-    '['  shift, and go to state 29
-    '.'  shift, and go to state 30
-
-    '['       [reduce using rule 31 (LVALUEPROP)]
-    $default  reduce using rule 31 (LVALUEPROP)
-
-    LVALUEPROP  go to state 99
+    $default  reduce using rule 47 (E)
 
 
 State 83
+
+   45 E: E . '+' E
+   46  | E . '-' E
+   47  | E . '*' E
+   48  | E . '/' E
+   48  | E '/' E .
+
+    $default  reduce using rule 48 (E)
+
+
+State 84
+
+   25 A: ID MAISIGUAL A NOMEVAR .
+
+    $default  reduce using rule 25 (A)
+
+
+State 85
+
+   29 LVALUEPROP: '[' A ']' . LVALUEPROP
+   31           | '[' A ']' .
+
+    '['  shift, and go to state 31
+    '.'  shift, and go to state 32
+
+    $default  reduce using rule 31 (LVALUEPROP)
+
+    LVALUEPROP  go to state 103
+
+
+State 86
 
    30 LVALUEPROP: '.' ID LVALUEPROP .
 
     $default  reduce using rule 30 (LVALUEPROP)
 
 
-State 84
+State 87
 
-   60 ARGs: E ',' . ARGs
+   61 ARGs: E ',' . ARGs
 
     NUM     shift, and go to state 4
     STRING  shift, and go to state 5
-    ID      shift, and go to state 45
-    '-'     shift, and go to state 12
-    '{'     shift, and go to state 40
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
+    ID      shift, and go to state 48
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
 
-    RVALUE  go to state 46
-    E       go to state 60
-    F       go to state 25
-    ARGs    go to state 100
-
-
-State 85
-
-   54 F: ID '(' ARGs ')' .
-
-    $default  reduce using rule 54 (F)
+    RVALUE  go to state 49
+    E       go to state 63
+    F       go to state 27
+    ARGs    go to state 104
 
 
-State 86
+State 88
+
+   55 F: ID '(' ARGs ')' .
+
+    $default  reduce using rule 55 (F)
+
+
+State 89
 
    26 A: ID LVALUEPROP MAISIGUAL A .
 
     $default  reduce using rule 26 (A)
 
 
-State 87
+State 90
 
    21 A: ID LVALUEPROP '+' A .
 
     $default  reduce using rule 21 (A)
 
 
-State 88
+State 91
 
    22 A: ID LVALUEPROP '-' A .
 
     $default  reduce using rule 22 (A)
 
 
-State 89
+State 92
 
    20 A: ID LVALUEPROP '=' A .
 
     $default  reduce using rule 20 (A)
 
 
-State 90
-
-   39 EBOOL: A IGUAL . A
-
-    NUM     shift, and go to state 4
-    STRING  shift, and go to state 5
-    ID      shift, and go to state 6
-    '-'     shift, and go to state 12
-    '{'     shift, and go to state 40
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
-
-    A       go to state 101
-    RVALUE  go to state 21
-    E       go to state 24
-    F       go to state 25
-
-
-State 91
-
-   40 EBOOL: A DIFERENTE . A
-
-    NUM     shift, and go to state 4
-    STRING  shift, and go to state 5
-    ID      shift, and go to state 6
-    '-'     shift, and go to state 12
-    '{'     shift, and go to state 40
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
-
-    A       go to state 102
-    RVALUE  go to state 21
-    E       go to state 24
-    F       go to state 25
-
-
-State 92
-
-   37 EBOOL: A '<' . A
-
-    NUM     shift, and go to state 4
-    STRING  shift, and go to state 5
-    ID      shift, and go to state 6
-    '-'     shift, and go to state 12
-    '{'     shift, and go to state 40
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
-
-    A       go to state 103
-    RVALUE  go to state 21
-    E       go to state 24
-    F       go to state 25
-
-
 State 93
 
-   38 EBOOL: A '>' . A
+   40 E_BOOL: A IGUAL . A
 
     NUM     shift, and go to state 4
     STRING  shift, and go to state 5
     ID      shift, and go to state 6
-    '-'     shift, and go to state 12
-    '{'     shift, and go to state 40
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
 
-    A       go to state 104
-    RVALUE  go to state 21
-    E       go to state 24
-    F       go to state 25
+    A       go to state 105
+    RVALUE  go to state 22
+    E       go to state 26
+    F       go to state 27
 
 
 State 94
 
-   34 CMD_IF: IF '(' EBOOL ')' . CMD CMD_ELSE
+   41 E_BOOL: A DIFERENTE . A
 
     NUM     shift, and go to state 4
     STRING  shift, and go to state 5
     ID      shift, and go to state 6
-    IF      shift, and go to state 7
-    WHILE   shift, and go to state 8
-    LET     shift, and go to state 9
-    CONST   shift, and go to state 10
-    VAR     shift, and go to state 11
-    '-'     shift, and go to state 12
-    ';'     shift, and go to state 13
-    '{'     shift, and go to state 14
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
 
-    CMD        go to state 105
-    VARIAVEL   go to state 19
-    A          go to state 20
-    RVALUE     go to state 21
-    CMD_WHILE  go to state 22
-    CMD_IF     go to state 23
-    E          go to state 24
-    F          go to state 25
+    A       go to state 106
+    RVALUE  go to state 22
+    E       go to state 26
+    F       go to state 27
 
 
 State 95
 
-   33 CMD_WHILE: WHILE '(' EBOOL ')' . CMD
+   38 E_BOOL: A '<' . A
+
+    NUM     shift, and go to state 4
+    STRING  shift, and go to state 5
+    ID      shift, and go to state 6
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
+
+    A       go to state 107
+    RVALUE  go to state 22
+    E       go to state 26
+    F       go to state 27
+
+
+State 96
+
+   39 E_BOOL: A '>' . A
+
+    NUM     shift, and go to state 4
+    STRING  shift, and go to state 5
+    ID      shift, and go to state 6
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
+
+    A       go to state 108
+    RVALUE  go to state 22
+    E       go to state 26
+    F       go to state 27
+
+
+State 97
+
+   35 CMD_IF: IF '(' E_BOOL ')' . CMD CMD_ELSE
 
     NUM     shift, and go to state 4
     STRING  shift, and go to state 5
     ID      shift, and go to state 6
     IF      shift, and go to state 7
-    WHILE   shift, and go to state 8
-    LET     shift, and go to state 9
-    CONST   shift, and go to state 10
-    VAR     shift, and go to state 11
-    '-'     shift, and go to state 12
-    ';'     shift, and go to state 13
-    '{'     shift, and go to state 14
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
+    FOR     shift, and go to state 8
+    WHILE   shift, and go to state 9
+    LET     shift, and go to state 10
+    CONST   shift, and go to state 11
+    VAR     shift, and go to state 12
+    '-'     shift, and go to state 13
+    ';'     shift, and go to state 14
+    '{'     shift, and go to state 15
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
 
-    CMD        go to state 106
-    VARIAVEL   go to state 19
-    A          go to state 20
-    RVALUE     go to state 21
-    CMD_WHILE  go to state 22
-    CMD_IF     go to state 23
-    E          go to state 24
-    F          go to state 25
-
-
-State 96
-
-   15 NOMEVAR: ID '=' A . OUTRAVAR
-
-    ','  shift, and go to state 73
-
-    ','       [reduce using rule 18 (OUTRAVAR)]
-    $default  reduce using rule 18 (OUTRAVAR)
-
-    OUTRAVAR  go to state 107
-
-
-State 97
-
-   17 OUTRAVAR: ',' NOMEVAR .
-
-    $default  reduce using rule 17 (OUTRAVAR)
+    CMD        go to state 109
+    VARIAVEL   go to state 20
+    A          go to state 21
+    RVALUE     go to state 22
+    CMD_WHILE  go to state 23
+    CMD_FOR    go to state 24
+    CMD_IF     go to state 25
+    E          go to state 26
+    F          go to state 27
 
 
 State 98
 
-   11 CMD: '{' $@2 CMDs '}' .
+   34 CMD_FOR: FOR '(' VARIAVEL ';' . E_BOOL ';' A ')' CMD
 
-    $default  reduce using rule 11 (CMD)
+    NUM     shift, and go to state 4
+    STRING  shift, and go to state 5
+    ID      shift, and go to state 6
+    BOOL    shift, and go to state 69
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
+
+    A       go to state 70
+    RVALUE  go to state 71
+    E_BOOL  go to state 110
+    E       go to state 73
+    F       go to state 27
 
 
 State 99
+
+   33 CMD_WHILE: WHILE '(' E_BOOL ')' . CMD
+
+    NUM     shift, and go to state 4
+    STRING  shift, and go to state 5
+    ID      shift, and go to state 6
+    IF      shift, and go to state 7
+    FOR     shift, and go to state 8
+    WHILE   shift, and go to state 9
+    LET     shift, and go to state 10
+    CONST   shift, and go to state 11
+    VAR     shift, and go to state 12
+    '-'     shift, and go to state 13
+    ';'     shift, and go to state 14
+    '{'     shift, and go to state 15
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
+
+    CMD        go to state 111
+    VARIAVEL   go to state 20
+    A          go to state 21
+    RVALUE     go to state 22
+    CMD_WHILE  go to state 23
+    CMD_FOR    go to state 24
+    CMD_IF     go to state 25
+    E          go to state 26
+    F          go to state 27
+
+
+State 100
+
+   16 NOMEVAR: ID '=' A . ',' NOMEVAR
+
+    ','  shift, and go to state 112
+
+
+State 101
+
+   17 NOMEVAR: ID ',' NOMEVAR .
+
+    $default  reduce using rule 17 (NOMEVAR)
+
+
+State 102
+
+   12 CMD: '{' $@2 CMDs '}' .
+
+    $default  reduce using rule 12 (CMD)
+
+
+State 103
 
    29 LVALUEPROP: '[' A ']' LVALUEPROP .
 
     $default  reduce using rule 29 (LVALUEPROP)
 
 
-State 100
-
-   60 ARGs: E ',' ARGs .
-
-    $default  reduce using rule 60 (ARGs)
-
-
-State 101
-
-   39 EBOOL: A IGUAL A .
-
-    $default  reduce using rule 39 (EBOOL)
-
-
-State 102
-
-   40 EBOOL: A DIFERENTE A .
-
-    $default  reduce using rule 40 (EBOOL)
-
-
-State 103
-
-   37 EBOOL: A '<' A .
-
-    $default  reduce using rule 37 (EBOOL)
-
-
 State 104
 
-   38 EBOOL: A '>' A .
+   61 ARGs: E ',' ARGs .
 
-    $default  reduce using rule 38 (EBOOL)
+    $default  reduce using rule 61 (ARGs)
 
 
 State 105
 
-   34 CMD_IF: IF '(' EBOOL ')' CMD . CMD_ELSE
+   40 E_BOOL: A IGUAL A .
 
-    ELSE  shift, and go to state 108
-
-    ELSE      [reduce using rule 36 (CMD_ELSE)]
-    $default  reduce using rule 36 (CMD_ELSE)
-
-    CMD_ELSE  go to state 109
+    $default  reduce using rule 40 (E_BOOL)
 
 
 State 106
 
-   33 CMD_WHILE: WHILE '(' EBOOL ')' CMD .
+   41 E_BOOL: A DIFERENTE A .
 
-    $default  reduce using rule 33 (CMD_WHILE)
+    $default  reduce using rule 41 (E_BOOL)
 
 
 State 107
 
-   15 NOMEVAR: ID '=' A OUTRAVAR .
+   38 E_BOOL: A '<' A .
 
-    $default  reduce using rule 15 (NOMEVAR)
+    $default  reduce using rule 38 (E_BOOL)
 
 
 State 108
 
-   35 CMD_ELSE: ELSE . CMD
+   39 E_BOOL: A '>' A .
+
+    $default  reduce using rule 39 (E_BOOL)
+
+
+State 109
+
+   35 CMD_IF: IF '(' E_BOOL ')' CMD . CMD_ELSE
+
+    ELSE  shift, and go to state 113
+
+    ELSE      [reduce using rule 37 (CMD_ELSE)]
+    $default  reduce using rule 37 (CMD_ELSE)
+
+    CMD_ELSE  go to state 114
+
+
+State 110
+
+   34 CMD_FOR: FOR '(' VARIAVEL ';' E_BOOL . ';' A ')' CMD
+
+    ';'  shift, and go to state 115
+
+
+State 111
+
+   33 CMD_WHILE: WHILE '(' E_BOOL ')' CMD .
+
+    $default  reduce using rule 33 (CMD_WHILE)
+
+
+State 112
+
+   16 NOMEVAR: ID '=' A ',' . NOMEVAR
+
+    ID  shift, and go to state 38
+
+    NOMEVAR  go to state 116
+
+
+State 113
+
+   36 CMD_ELSE: ELSE . CMD
 
     NUM     shift, and go to state 4
     STRING  shift, and go to state 5
     ID      shift, and go to state 6
     IF      shift, and go to state 7
-    WHILE   shift, and go to state 8
-    LET     shift, and go to state 9
-    CONST   shift, and go to state 10
-    VAR     shift, and go to state 11
-    '-'     shift, and go to state 12
-    ';'     shift, and go to state 13
-    '{'     shift, and go to state 14
-    '['     shift, and go to state 15
-    '('     shift, and go to state 16
+    FOR     shift, and go to state 8
+    WHILE   shift, and go to state 9
+    LET     shift, and go to state 10
+    CONST   shift, and go to state 11
+    VAR     shift, and go to state 12
+    '-'     shift, and go to state 13
+    ';'     shift, and go to state 14
+    '{'     shift, and go to state 15
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
 
-    CMD        go to state 110
-    VARIAVEL   go to state 19
-    A          go to state 20
-    RVALUE     go to state 21
-    CMD_WHILE  go to state 22
-    CMD_IF     go to state 23
-    E          go to state 24
-    F          go to state 25
-
-
-State 109
-
-   34 CMD_IF: IF '(' EBOOL ')' CMD CMD_ELSE .
-
-    $default  reduce using rule 34 (CMD_IF)
+    CMD        go to state 117
+    VARIAVEL   go to state 20
+    A          go to state 21
+    RVALUE     go to state 22
+    CMD_WHILE  go to state 23
+    CMD_FOR    go to state 24
+    CMD_IF     go to state 25
+    E          go to state 26
+    F          go to state 27
 
 
-State 110
+State 114
 
-   35 CMD_ELSE: ELSE CMD .
+   35 CMD_IF: IF '(' E_BOOL ')' CMD CMD_ELSE .
 
-    $default  reduce using rule 35 (CMD_ELSE)
+    $default  reduce using rule 35 (CMD_IF)
+
+
+State 115
+
+   34 CMD_FOR: FOR '(' VARIAVEL ';' E_BOOL ';' . A ')' CMD
+
+    NUM     shift, and go to state 4
+    STRING  shift, and go to state 5
+    ID      shift, and go to state 6
+    '-'     shift, and go to state 13
+    '{'     shift, and go to state 43
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
+
+    A       go to state 118
+    RVALUE  go to state 22
+    E       go to state 26
+    F       go to state 27
+
+
+State 116
+
+   16 NOMEVAR: ID '=' A ',' NOMEVAR .
+
+    $default  reduce using rule 16 (NOMEVAR)
+
+
+State 117
+
+   36 CMD_ELSE: ELSE CMD .
+
+    $default  reduce using rule 36 (CMD_ELSE)
+
+
+State 118
+
+   34 CMD_FOR: FOR '(' VARIAVEL ';' E_BOOL ';' A . ')' CMD
+
+    ')'  shift, and go to state 119
+
+
+State 119
+
+   34 CMD_FOR: FOR '(' VARIAVEL ';' E_BOOL ';' A ')' . CMD
+
+    NUM     shift, and go to state 4
+    STRING  shift, and go to state 5
+    ID      shift, and go to state 6
+    IF      shift, and go to state 7
+    FOR     shift, and go to state 8
+    WHILE   shift, and go to state 9
+    LET     shift, and go to state 10
+    CONST   shift, and go to state 11
+    VAR     shift, and go to state 12
+    '-'     shift, and go to state 13
+    ';'     shift, and go to state 14
+    '{'     shift, and go to state 15
+    '['     shift, and go to state 16
+    '('     shift, and go to state 17
+
+    CMD        go to state 120
+    VARIAVEL   go to state 20
+    A          go to state 21
+    RVALUE     go to state 22
+    CMD_WHILE  go to state 23
+    CMD_FOR    go to state 24
+    CMD_IF     go to state 25
+    E          go to state 26
+    F          go to state 27
+
+
+State 120
+
+   34 CMD_FOR: FOR '(' VARIAVEL ';' E_BOOL ';' A ')' CMD .
+
+    $default  reduce using rule 34 (CMD_FOR)

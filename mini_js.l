@@ -3,9 +3,12 @@ L	        [A-Za-z_$]
 WS          [ \t\r\n]
 INT	        {D}+
 NUM         {INT}(\.{INT})?([Ee][+\-]?{INT})?
-STRING      ([\"](([\"][\"])|(\\\")|[^\n"])*[\"])|([\'](([\'][\'])|(\\\')|[^\n'])*[\'])
+STRING1      ([\"](([\"][\"])|(\\\")|[^\n"])*[\"])|([\'](([\'][\'])|(\\\')|[^\n'])*[\'])
+STRING2     ([`]([^`])*[`])
+STRING      {STRING1}|{STRING2}
 ID	    	{L}+({L}|{D})*
 BOOL        false|true
+
 
 
 %%
@@ -21,6 +24,7 @@ BOOL        false|true
 "if"		{   return retorna(IF);}
 "else"		{   return retorna(ELSE);}
 "while"		{   return retorna(WHILE);}
+"for"		{   return retorna(FOR);}
 
 "\t"            { coluna += 4; }
 " "             { coluna++; }

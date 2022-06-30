@@ -7,88 +7,61 @@
 using namespace std;
 
 struct Atributos {
-  // string v;
   vector<string> v;
   string var_type;
 };
 
-struct Variavel
-{
+struct Variavel{
   string var_type;
   int linha;
 };
 
-vector <map<string, Variavel>> escopos;
 
 #define YYSTYPE Atributos
 
-void erro( string );
-void print( string );
+extern "C" int yylex();
+int retorna( int tk );
 string gera_label(string);
 string gera_index();
 void yyerror( const char* );
-int retorna( int tk );
-extern "C" int yylex();
+void erro( string );
 void declarar_var(string);
 void verificar_var(string);
 void abrir_escopo();
 void fechar_escopo();
 void imprimir_codigo( vector<string>);
-
+vector <map<string, Variavel>> escopos;
+vector<string> resolve_enderecos( vector<string> entrada );
+vector<string> concatena( vector<string>, vector<string> );
+vector<string> operator+( vector<string>, vector<string> );
+vector<string> operator+( vector<string>, string );
+vector<string> operator+( string, vector<string> ) ;
 int linha = 1;
 int coluna = 1;
 string var_type = "let";
 
-vector<string> resolve_enderecos( vector<string> entrada );
-
-vector<string> concatena( vector<string> a, vector<string> b ) {
-  a.insert( a.end(), b.begin(), b.end() );
-  return a;
-}
-
-vector<string> operator+( vector<string> a, vector<string> b ) {
-  return concatena( a, b );
-}
-
-vector<string> operator+( vector<string> a, string b ) {
-  a.push_back( b );
-  return a;
-}
-
-vector<string> operator+( string a, vector<string> b ) {
-  vector<string> c= {};
-  c = c + a;
-  c = c + b;
-  return b;
-}
-
 %}
 
-%token NUM STRING ID PRINT IF BOOL ELSE
+%token NUM STRING ID IF BOOL ELSE FOR
 %token IGUAL DIFERENTE MAISMAIS WHILE
-%token LET CONST VAR MAISIGUAL
-
+%token LET CONST VAR MAISIGUAL COMENTARIO
 
 %left '+' '-'
 %left '*' '/'
 
 %%
 
-ROOT  : {abrir_escopo();}S {fechar_escopo(); imprimir_codigo($2.v); }
-
-S   : CMDs S  {$$.v = $1.v + " "+ $2.v;}
-    | %empty  { $$.v.clear(); }
-    ;
+ROOT  : {abrir_escopo();}CMDs {fechar_escopo(); imprimir_codigo($2.v);}
 
 CMDs  : CMD CMDs {$$.v = $1.v + $2.v;}
       | %empty   { $$.v.clear(); } 
       ;
 
 CMD :   A   ';'   {$$.v = $1.v + "^";}
-    |   P       
     |   VARIAVEL 
     |   CMD_IF
     |   CMD_WHILE
+    |   CMD_FOR
     |   ';'          { $$.v.clear(); }
     |   '{'{abrir_escopo();} CMDs '}'  {fechar_escopo(); $$.v = $3.v;}
     ;
@@ -102,9 +75,8 @@ NOMEVAR  : ID '=' A OUTRAVAR {declarar_var($1.v[0]); $$.v = $1.v + "&" + $1.v + 
         | ID  OUTRAVAR      {declarar_var($1.v[0]); $$.v = $1.v + "&" + $2.v ;}
         ;
 
-OUTRAVAR : ',' ID '=' A OUTRAVAR  {declarar_var($2.v[0]); $$.v = $2.v + "&" + $2.v + $4.v + "="+ "^" + $5.v ; }
-         | ',' ID   OUTRAVAR      {declarar_var($2.v[0]); $$.v = $2.v + "&" + $3.v ;}
-         |  %empty                { $$.v.clear(); }                  
+OUTRAVAR : ',' NOMEVAR  {$$.v = $2.v; }
+         |  %empty      { $$.v.clear(); }                  
          ;
 
 A   :   ID  '=' A                 {verificar_var($1.v[0]); $$.v = $1.v + $3.v + "=";}
@@ -130,8 +102,13 @@ CMD_WHILE : WHILE '(' EBOOL ')' CMD {
                               string loop = gera_label("LBL_LOOP");
                               string end_while = gera_label("LBL_ENDWHILE");
                               $$.v.clear(); $$.v =  $$.v + (":" +loop) + $3.v + "!" + end_while + "?" + $5.v + loop + "#" + (":" + end_while);
-}
+                              }
           ;
+
+CMD_FOR : FOR '(' VARIAVEL ';' EBOOL ';' A ')' CMD { 
+                              string loop = gera_label("LBL_LOOP");
+                              string end_for = gera_label("LBL_ENDFOR");
+                              $$.v = $3.v + (":" +loop) + $5.v + "!" + end_for + "?" + $9.v + $7.v + "^" + loop + "#" +(":" + end_for);}
 
 CMD_IF  : IF '(' EBOOL ')' CMD CMD_ELSE {
                               string then = gera_label("LBL_THEN");
@@ -154,13 +131,7 @@ EBOOL : A '<' A       { $$.v = $1.v  + $3.v + "<";}
       | BOOL          
       ;
 
-
-
-P   :   PRINT   E   {$$.v = $2.v + " print #";}
-    ;
-
 E   :   E '+' E {$$.v = $1.v + $3.v + "+";}
-    |   E '^' E {$$.v = $1.v + $3.v + "^";}
     |   E '-' E {$$.v = $1.v + $3.v + "-";}
     |   E '*' E {$$.v = $1.v + $3.v + "*";}
     |   E '/' E {$$.v = $1.v + $3.v + "/";}
@@ -189,7 +160,6 @@ ARGs    :   E ',' ARGs {$$.v = $1.v + $3.v;}
 #include "lex.yy.c"
 
 map<int,string> nome_tokens = {
-  { PRINT, "print" },
   { STRING, "string" },
   { ID, "nome de identificador" },
   { NUM, "número" }
@@ -218,10 +188,6 @@ void yyerror(const char* msg){
          << "Linha: " << linha << " " 
          << "Coluna: "<< coluna<< endl;
     exit(0);
-}
-
-void print(string st){
-    cout << st << " ";
 }
 
 string gera_label(string label){
@@ -303,6 +269,28 @@ void imprimir_codigo(vector<string> v){
   // }
   cout << '.'; 
 }
+
+vector<string> concatena( vector<string> a, vector<string> b ) {
+  a.insert( a.end(), b.begin(), b.end() );
+  return a;
+}
+
+vector<string> operator+( vector<string> a, vector<string> b ) {
+  return concatena( a, b );
+}
+
+vector<string> operator+( vector<string> a, string b ) {
+  a.push_back( b );
+  return a;
+}
+
+vector<string> operator+( string a, vector<string> b ) {
+  vector<string> c= {};
+  c = c + a;
+  c = c + b;
+  return b;
+}
+
 int main(){
     yyparse();
     cout << endl;

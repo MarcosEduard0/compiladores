@@ -31,8 +31,10 @@ int retorna( int tk );
 extern "C" int yylex();
 void declarar_var(string nome);
 void verificar_var(string nome);
-void abre_escopo();
-void fecha_escopo();
+void abrir_escopo();
+void fechar_escopo();
+void imprimir_codigo( vector<string>);
+
 
 int linha = 1;
 int coluna = 1;
@@ -64,7 +66,7 @@ vector<string> operator+( string a, vector<string> b ) {
 %}
 
 %token NUM STRING ID PRINT IF BOOL ELSE
-%token IGUAL DIFERENTE MAISMAIS
+%token IGUAL DIFERENTE MAISMAIS WHILE
 %token LET CONST VAR MAISIGUAL
 
 
@@ -73,14 +75,7 @@ vector<string> operator+( string a, vector<string> b ) {
 
 %%
 
-ROOT  : {abre_escopo();}S {fecha_escopo();
-            vector<string> c = resolve_enderecos($2.v);
-            for (int i = 0; i < c.size(); i++){
-                 cout << c[i];
-                 if(i+1 < c.size())
-                    if (c[i+1] != "&" && c[i+1] != "@" && c[i+1] != "}" && c[i+1] != "]"){cout << " ";}
-            }
-            cout << '.'; }
+ROOT  : {abrir_escopo();}S {fechar_escopo(); imprimir_codigo($2.v); }
 
 S   : CMDs S  {$$.v = $1.v + " "+ $2.v;}
     | %empty  { $$.v.clear(); }
@@ -90,79 +85,38 @@ CMDs  : CMD CMDs {$$.v = $1.v + $2.v;}
       | %empty   { $$.v.clear(); } 
       ;
 
-CMD :   A   ';'   {$$.v = $1.v + "^";}
-    |   P       
-    |   VARIAVEL 
-    |   CMD_IF
-    |   ';'          { $$.v.clear(); }
-    |   '{'{abre_escopo();} CMDs '}'  {fecha_escopo(); $$.v = $3.v;}
+CMD :    VARIAVEL ';'
+    |    RVALUE ';' {$$.v = $1.v + "^";}
+    |   '{'{abrir_escopo();} CMDs '}'  {fechar_escopo(); $$.v = $3.v;}
+    ;
+A   : ID  '=' RVALUE  {$$.v = $1.v + $3.v + "=";}   
+    | ID  MAISIGUAL RVALUE  {$$.v = $1.v + $1.v +"@"+ $3.v + "+" + "=";}
     ;
 
+    
 VARIAVEL    :   LET NOMEVAR      {var_type = "let"; $$.v = $2.v;}
             |   VAR NOMEVAR      {var_type = "var"; $$.v = $2.v;}
             |   CONST NOMEVAR    {var_type = "const"; $$.v = $2.v;}
             ;
 
-NOMEVAR  : ID '=' A OUTRAVAR {declarar_var($1.v[0]); $$.v = $1.v + "&" + $1.v + $3.v + "="+"^" + $4.v ; }
-        | ID  OUTRAVAR      {declarar_var($1.v[0]); $$.v = $1.v + "&" + $2.v ;}
-        ;
-
-OUTRAVAR : ',' ID '=' A OUTRAVAR  {declarar_var($2.v[0]); $$.v = $2.v + "&" + $2.v + $4.v + "="+ "^" + $5.v ; }
-         | ',' ID   OUTRAVAR      {declarar_var($2.v[0]); $$.v = $2.v + "&" + $3.v ;}
-         |  %empty                { $$.v.clear(); }                  
-         ;
-
-A   :   ID  '=' A                 {verificar_var($1.v[0]); $$.v = $1.v + $3.v + "=";}
-    // |   ID LVALUEPROP '+' A       {$$.v = $1.v+ "@" + $2.v ; }
-    |   ID LVALUEPROP '=' A       {$$.v = $1.v+ "@" + $2.v + $4.v + "[=]"; }
-    |   ID LVALUEPROP             {$$.v = $1.v+ "@" + $2.v; }
-    |   E                         
-    |   ID MAISIGUAL A OUTRAVAR   {$$.v = $1.v + $1.v + "@" + $3.v + "+"+ "="; }
-    |   ID LVALUEPROP MAISIGUAL A { $$.v = $1.v+ "@" + $2.v + $1.v+ "@" + $2.v + "[@]" + $4.v + "+" + "[=]"; }
-    |   RVALUE
-    ;
-
-LVALUEPROP    :   '[' A ']' LVALUEPROP  { $$.v = $2.v + "[@]" + $4.v ; }
-              |   '.' ID LVALUEPROP     { $$.v = $2.v + "[@]" + $3.v; }
-              |   '[' A ']'             { $$.v =  $2.v; }
-              |   '.' ID                { $$.v = $2.v; }
-              |   '+' A                 {$$.v = "[@]"+ $2.v + $1.v;}
-              |   '-' A                 {$$.v = "[@]"+ $2.v + $1.v;}
-              ;
-
-CMD_IF  : IF '(' EBOOL ')' CMD CMD_ELSE {
-                              string then = gera_label("LBL_THEN");
-                              string end_if = gera_label("LBL_ENDIF");
-                              // $$.v = $3.v + then + "?" + "#"+ (":" + then)+ $5.v + end_if + (":" + end_if);} 
-                              $$.v = $3.v + "!" + then +"?" + $5.v + end_if + "#" + (":" + then) + $6.v + (":" + end_if);
-                              } 
-        ;
-
-CMD_ELSE  : ELSE  CMD   {$$.v = $2.v; }
-          | %empty      { $$.v.clear(); }
+NOMEVAR   : ID '=' RVALUE OUTRAVAR  {declarar_var($1.v[0]); $$.v = $1.v + "&" + $1.v + $3.v + "="+"^" + $4.v ; }
+          | ID  OUTRAVAR            {declarar_var($1.v[0]); $$.v = $1.v + "&" + $2.v ;}
           ;
 
-EBOOL : A '<' A       { $$.v = $1.v  + $3.v + "<";}
-      | A '>' A       { $$.v = $1.v  + $3.v + ">";}
-      | A IGUAL A     { $$.v = $1.v  + $3.v + "==";}
-      | A DIFERENTE A { $$.v = $1.v  + $3.v + "!=";}
-      | RVALUE        
-      | E        
-      | BOOL          
-      ;
-
-RVALUE  : ID MAISMAIS   {verificar_var($1.v[0]); $$.v = $1.v + "@" + $1.v + $1.v + "@" + "1" + "+" + "=" + "^"; }
+OUTRAVAR : ',' NOMEVAR  {$$.v = $2.v; }
+         | ',' NOMEVAR  {$$.v = $2.v ;}
+         |  %empty      { $$.v.clear(); }                  
+         ;
+RVALUE  : E
+        | A
+        | ID
         ;
-
-P   :   PRINT   E   {$$.v = $2.v + " print #";}
-    ;
 
 E   :   E '+' E {$$.v = $1.v + $3.v + "+";}
     |   E '^' E {$$.v = $1.v + $3.v + "^";}
     |   E '-' E {$$.v = $1.v + $3.v + "-";}
     |   E '*' E {$$.v = $1.v + $3.v + "*";}
     |   E '/' E {$$.v = $1.v + $3.v + "/";}
-    |   RVALUE
     |   F
     ;
 
@@ -185,24 +139,6 @@ ARGs    :   E ',' ARGs {$$.v = $1.v + $3.v;}
 %%
 
 #include "lex.yy.c"
-
-map<int,string> nome_tokens = {
-  { PRINT, "print" },
-  { STRING, "string" },
-  { ID, "nome de identificador" },
-  { NUM, "número" }
-};
-
-string nome_token( int token ) {
-  if( nome_tokens.find( token ) != nome_tokens.end() )
-    return nome_tokens[token];
-  else {
-    string r;
-    
-    r = token;
-    return r;
-  }
-}
 
 int retorna( int tk ) {  
   yylval.v = {yytext}; 
@@ -248,13 +184,13 @@ vector<string> resolve_enderecos( vector<string> entrada ) {
   return saida;
 }
 
-void abre_escopo(){
+void abrir_escopo(){
 
   map<string,Variavel> escopo;
   escopos.push_back(escopo);
 }
 
-void fecha_escopo(){
+void fechar_escopo(){
   escopos.pop_back();
 }
 
@@ -289,7 +225,18 @@ void declarar_var(string nome)
     escopos.back()[nome] = v;
   }
 }
-
+void imprimir_codigo(vector<string> v){
+  vector<string> codigo = resolve_enderecos(v);
+  for(string instrucao: codigo)
+      cout << instrucao << " ";
+  
+  // for (int i = 0; i < codigo.size(); i++){
+  //       cout << codigo[i];
+  //       if(i+1 < codigo.size())
+  //         if (codigo[i+1] != "&" && codigo[i+1] != "@" && codigo[i+1] != "}" && codigo[i+1] != "]"){cout << " ";}
+  // }
+  cout << '.'; 
+}
 int main(){
     yyparse();
     cout << endl;

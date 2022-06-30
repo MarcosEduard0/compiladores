@@ -23,6 +23,7 @@ vector <map<string, Variavel>> escopos;
 #define YYSTYPE Atributos
 
 void erro( string );
+void print( string );
 string gera_label(string);
 string gera_index();
 void yyerror( const char* );
@@ -63,22 +64,28 @@ vector<string> operator+( string a, vector<string> b ) {
 
 %}
 
-%token NUM STRING ID IF BOOL ELSE
+%token NUM STRING ID PRINT IF BOOL ELSE
 %token IGUAL DIFERENTE MAISMAIS WHILE
 %token LET CONST VAR MAISIGUAL
+
 
 %left '+' '-'
 %left '*' '/'
 
 %%
 
-ROOT  : {abrir_escopo();}CMDs {fechar_escopo(); imprimir_codigo($2.v);}
+ROOT  : {abrir_escopo();}S {fechar_escopo(); imprimir_codigo($2.v); }
+
+S   : CMDs S  {$$.v = $1.v + " "+ $2.v;}
+    | %empty  { $$.v.clear(); }
+    ;
 
 CMDs  : CMD CMDs {$$.v = $1.v + $2.v;}
       | %empty   { $$.v.clear(); } 
       ;
 
 CMD :   A   ';'   {$$.v = $1.v + "^";}
+    |   P       
     |   VARIAVEL 
     |   CMD_IF
     |   CMD_WHILE
@@ -95,8 +102,9 @@ NOMEVAR  : ID '=' A OUTRAVAR {declarar_var($1.v[0]); $$.v = $1.v + "&" + $1.v + 
         | ID  OUTRAVAR      {declarar_var($1.v[0]); $$.v = $1.v + "&" + $2.v ;}
         ;
 
-OUTRAVAR : ',' NOMEVAR  {$$.v = $2.v; }
-         |  %empty      { $$.v.clear(); }                  
+OUTRAVAR : ',' ID '=' A OUTRAVAR  {declarar_var($2.v[0]); $$.v = $2.v + "&" + $2.v + $4.v + "="+ "^" + $5.v ; }
+         | ',' ID   OUTRAVAR      {declarar_var($2.v[0]); $$.v = $2.v + "&" + $3.v ;}
+         |  %empty                { $$.v.clear(); }                  
          ;
 
 A   :   ID  '=' A                 {verificar_var($1.v[0]); $$.v = $1.v + $3.v + "=";}
@@ -146,7 +154,13 @@ EBOOL : A '<' A       { $$.v = $1.v  + $3.v + "<";}
       | BOOL          
       ;
 
+
+
+P   :   PRINT   E   {$$.v = $2.v + " print #";}
+    ;
+
 E   :   E '+' E {$$.v = $1.v + $3.v + "+";}
+    |   E '^' E {$$.v = $1.v + $3.v + "^";}
     |   E '-' E {$$.v = $1.v + $3.v + "-";}
     |   E '*' E {$$.v = $1.v + $3.v + "*";}
     |   E '/' E {$$.v = $1.v + $3.v + "/";}
@@ -175,6 +189,7 @@ ARGs    :   E ',' ARGs {$$.v = $1.v + $3.v;}
 #include "lex.yy.c"
 
 map<int,string> nome_tokens = {
+  { PRINT, "print" },
   { STRING, "string" },
   { ID, "nome de identificador" },
   { NUM, "número" }
@@ -203,6 +218,10 @@ void yyerror(const char* msg){
          << "Linha: " << linha << " " 
          << "Coluna: "<< coluna<< endl;
     exit(0);
+}
+
+void print(string st){
+    cout << st << " ";
 }
 
 string gera_label(string label){

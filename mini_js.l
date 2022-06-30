@@ -29,7 +29,6 @@ BOOL        false|true
 {NUM}           { return retorna( NUM ); }
 {BOOL}           { return retorna( BOOL ); }
 {STRING}	    { return retorna( STRING ); }
-"print"         { return retorna( PRINT ); }
 {ID}            { return retorna( ID ); }
 .               { return retorna( *yytext ); }
 

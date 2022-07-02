@@ -42,7 +42,7 @@ string var_type = "let";
 
 %}
 
-%token NUM STRING ID IF ELSE FOR
+%token NUM STRING ID IF BOOL ELSE FOR
 %token IGUAL DIFERENTE MAISMAIS WHILE
 %token LET CONST VAR MAISIGUAL COMENTARIO
 
@@ -59,6 +59,7 @@ CMDs  : CMD CMDs {$$.v = $1.v + $2.v;}
 
 CMD :   VARIAVEL ';'
     |   CMD_IF
+    |   CMD_IF_ELSE
     |   CMD_WHILE
     |   CMD_FOR
     |   ';'     { $$.v.clear(); } 
@@ -71,13 +72,11 @@ VARIAVEL    :   LET NOMEVAR      {var_type = "let"; $$.v = $2.v;}
             |   A     {$$.v = $1.v + "^";}
             ;
 
-NOMEVAR   : ID '=' A OUTRAVAR {declarar_var($1.v[0]); $$.v = $1.v + "&" + $1.v + $3.v + "="+"^" + $4.v ; }
-          | ID  OUTRAVAR      {declarar_var($1.v[0]); $$.v = $1.v + "&" + $2.v ;}
+NOMEVAR   : ID '=' A {declarar_var($1.v[0]); $$.v = $1.v + "&" + $1.v + $3.v + "="+"^"; }
+          | ID  ',' NOMEVAR      {declarar_var($1.v[0]); $$.v = $1.v + "&" + $3.v ;}
+          | ID '=' A ',' NOMEVAR {declarar_var($1.v[0]); $$.v = $1.v + "&" + $1.v + $3.v + "="+"^" + $5.v ; }
+          | ID
           ;
-
-OUTRAVAR : ',' NOMEVAR  { $$.v = $2.v; }
-         |  %empty      { $$.v.clear(); }                  
-         ;
 
 A   :   ID  '=' A                 {verificar_var($1.v[0]); $$.v = $1.v + $3.v + "=";}
     |   ID LVALUEPROP '=' A       {$$.v = $1.v+ "@" + $2.v + $4.v + "[=]"; }
@@ -86,7 +85,7 @@ A   :   ID  '=' A                 {verificar_var($1.v[0]); $$.v = $1.v + $3.v + 
     |   ID LVALUEPROP '*' A       {$$.v = $1.v+ "@" + $2.v + "[@]"+ $4.v + "*"; }
     |   ID LVALUEPROP             {$$.v = $1.v+ "@" + $2.v + "[@]";}
     |   E                         
-    |   ID MAISIGUAL A            {$$.v = $1.v + $1.v + "@" + $3.v + "+"+ "="; }
+    |   ID MAISIGUAL A NOMEVAR   {$$.v = $1.v + $1.v + "@" + $3.v + "+"+ "="; }
     |   ID LVALUEPROP MAISIGUAL A { $$.v = $1.v+ "@" + $2.v + $1.v+ "@" + $2.v + "[@]" + $4.v + "+" + "[=]"; }
     ;
 RVALUE  : ID MAISMAIS   {verificar_var($1.v[0]); $$.v = $1.v + "@" + $1.v + $1.v + "@" + "1" + "+" + "=" + "^"; }
@@ -97,33 +96,40 @@ LVALUEPROP    :   '[' A ']' LVALUEPROP  { $$.v = $2.v + "[@]" + $4.v ; }
               |   '[' A ']'             { $$.v =  $2.v; }
               |   '.' ID                { $$.v = $2.v; }
               ;
-CMD_WHILE : WHILE '(' BOOL ')' CMD {
+CMD_WHILE : WHILE '(' EBOOL ')' CMD {
                               string loop = gera_label("LBL_LOOP");
                               string end_while = gera_label("LBL_ENDWHILE");
                               $$.v.clear(); $$.v =  $$.v + (":" +loop) + $3.v + "!" + end_while + "?" + $5.v + loop + "#" + (":" + end_while);
                               }
           ;
 
-CMD_FOR : FOR '(' VARIAVEL ';' BOOL ';' A ')' CMD { 
+CMD_FOR : FOR '(' VARIAVEL ';' EBOOL ';' A ')' CMD { 
                               string loop = gera_label("LBL_LOOP");
                               string end_for = gera_label("LBL_ENDFOR");
                               $$.v = $3.v + (":" +loop) + $5.v + "!" + end_for + "?" + $9.v + $7.v + "^" + loop + "#" +(":" + end_for);}
 
-CMD_IF  : IF '(' BOOL ')' CMD CMD_ELSE {
+CMD_IF  : IF '(' EBOOL ')' CMD {
                               string then = gera_label("LBL_THEN");
                               string end_if = gera_label("LBL_ENDIF");
-                              $$.v = $3.v + "!" + then + "?" + $5.v + end_if + "#" + (":" + then) + $6.v +(":" + end_if);
+                              $$.v = $3.v + "!" + then + "?" + $5.v + end_if + "#" + (":" + then) + (":" + end_if);
                               } 
         ;
+CMD_IF_ELSE  : IF '(' EBOOL ')' CMD CMD_ELSE {
+                              string then = gera_label("LBL_THEN");
+                              string end_if = gera_label("LBL_ENDIF");
+                              $$.v = $3.v + "!" + then + "?" + $5.v + end_if + "#" + (":" + then) + $6.v + (":" + end_if);
+                              } 
+        ;
+
 CMD_ELSE  : ELSE  CMD   {$$.v = $2.v; }
-         |  %empty      { $$.v.clear(); }                  
           ;
 
-BOOL : A '<' A       { $$.v = $1.v  + $3.v + "<";}
+EBOOL : A '<' A       { $$.v = $1.v  + $3.v + "<";}
       | A '>' A       { $$.v = $1.v  + $3.v + ">";}
       | A IGUAL A     { $$.v = $1.v  + $3.v + "==";}
       | A DIFERENTE A { $$.v = $1.v  + $3.v + "!=";}
       | E        
+      | BOOL          
       ;
 
 E   :   E '+' E {$$.v = $1.v + $3.v + "+";}
@@ -142,6 +148,7 @@ F   :   ID     {$$.v = $1.v + "@";}
     |   ID  '(' ARGs ')'    {$$.v = $3.v + $1.v + "#";}
     |   '(' E ')'   {$$ = $2;}
     |   '-' F   {$$.v.clear(); $$.v = $$.v + "0" + $2.v + $1.v;}
+    |   F '!'   {$$.v = $1.v + "fat #";}
     |   '{''}'  {$$.v.clear(); $$.v = $$.v + "{}";}
     |   '['']'  {$$.v.clear(); $$.v = $$.v + "[]";}
     ;

@@ -7,7 +7,6 @@ STRING1      ([\"](([\"][\"])|(\\\")|[^\n"])*[\"])|([\'](([\'][\'])|(\\\')|[^\n'
 STRING2     ([`]([^`])*[`])
 STRING      {STRING1}|{STRING2}
 ID	    	{L}+({L}|{D})*
-BOOL        false|true
 
 
 
@@ -31,7 +30,6 @@ BOOL        false|true
 "\n"	        { linha++; coluna = 1; }
 {WS}		    { }
 {NUM}           { return retorna( NUM ); }
-{BOOL}           { return retorna( BOOL ); }
 {STRING}	    { return retorna( STRING ); }
 {ID}            { return retorna( ID ); }
 .               { return retorna( *yytext ); }

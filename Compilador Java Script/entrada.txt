@@ -1,8 +1,10 @@
-let a = 2,b,c;
-
-if ( a < 1){
-    b = 3;
+let a = "ABA", c = 'CATE', resultado;
+if( a == c )
+  resultado = "Ta' errado!";
+else if( a < c )
+{
+  resultado = "a vem antes de c: ";
+  resultado += a + '<' + c ;
 }
-else {
-    c = 5;
-}
+else
+  resultado = "Deu ruim!";

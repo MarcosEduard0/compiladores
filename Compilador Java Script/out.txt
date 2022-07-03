@@ -1,1 +1,4 @@
-a & a "ABA" = ^ c & c 'CATE' = ^ resultado & a @ c @ == ! 28 ? resultado "Ta' errado!" = ^ 59 # a @ c @ < ! 55 ? resultado "a vem antes de c: " = ^ resultado resultado @ a @ '<' + c @ + + = ^ 59 # resultado "Deu ruim!" = ^ .
+
+Erro: syntax error
+Perto de :';'
+Linha: 4 Coluna: 12

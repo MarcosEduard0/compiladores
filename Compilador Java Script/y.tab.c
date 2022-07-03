@@ -77,7 +77,8 @@ using namespace std;
 
 struct Atributos {
   vector<string> v;
-  string var_type;
+  string bloco;
+  string end_bloco;
 };
 
 struct Variavel{
@@ -106,11 +107,11 @@ vector<string> operator+( vector<string>, vector<string> );
 vector<string> operator+( vector<string>, string );
 vector<string> operator+( string, vector<string> ) ;
 int linha = 1;
-int coluna = 1;
+int coluna = 0;
 string var_type = "let";
 
 
-#line 114 "y.tab.c"
+#line 115 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -565,13 +566,13 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    54,    54,    54,    56,    57,    60,    61,    62,    63,
-      64,    65,    65,    68,    69,    70,    71,    74,    75,    78,
-      79,    82,    83,    84,    85,    86,    87,    88,    89,    90,
-      92,    95,    96,    97,    98,   100,   107,   112,   118,   119,
-     122,   123,   124,   125,   126,   129,   130,   131,   132,   133,
-     134,   138,   139,   140,   141,   142,   143,   144,   145,   146,
-     149,   150
+       0,    55,    55,    55,    57,    58,    61,    62,    63,    64,
+      65,    66,    66,    69,    70,    71,    72,    75,    76,    79,
+      80,    83,    84,    85,    86,    87,    88,    89,    90,    91,
+      93,    96,    97,    98,    99,   101,   108,   113,   119,   120,
+     123,   124,   125,   126,   127,   130,   131,   132,   133,   134,
+     135,   139,   140,   141,   142,   143,   144,   145,   146,   147,
+     150,   151
 };
 #endif
 
@@ -1447,306 +1448,306 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 54 "mini_js.y"
+#line 55 "mini_js.y"
         {abrir_escopo();}
-#line 1453 "y.tab.c"
+#line 1454 "y.tab.c"
     break;
 
   case 3:
-#line 54 "mini_js.y"
+#line 55 "mini_js.y"
                               {fechar_escopo(); imprimir_codigo(yyvsp[0].v);}
-#line 1459 "y.tab.c"
+#line 1460 "y.tab.c"
     break;
 
   case 4:
-#line 56 "mini_js.y"
+#line 57 "mini_js.y"
                  {yyval.v = yyvsp[-1].v + yyvsp[0].v;}
-#line 1465 "y.tab.c"
+#line 1466 "y.tab.c"
     break;
 
   case 10:
-#line 64 "mini_js.y"
+#line 65 "mini_js.y"
                 { yyval.v.clear(); }
-#line 1471 "y.tab.c"
+#line 1472 "y.tab.c"
     break;
 
   case 11:
-#line 65 "mini_js.y"
+#line 66 "mini_js.y"
            {abrir_escopo();}
-#line 1477 "y.tab.c"
+#line 1478 "y.tab.c"
     break;
 
   case 12:
-#line 65 "mini_js.y"
+#line 66 "mini_js.y"
                                        {fechar_escopo(); yyval.v = yyvsp[-1].v;}
-#line 1483 "y.tab.c"
+#line 1484 "y.tab.c"
     break;
 
   case 13:
-#line 68 "mini_js.y"
+#line 69 "mini_js.y"
                                  {var_type = "let"; yyval.v = yyvsp[0].v;}
-#line 1489 "y.tab.c"
+#line 1490 "y.tab.c"
     break;
 
   case 14:
-#line 69 "mini_js.y"
+#line 70 "mini_js.y"
                                  {var_type = "var"; yyval.v = yyvsp[0].v;}
-#line 1495 "y.tab.c"
+#line 1496 "y.tab.c"
     break;
 
   case 15:
-#line 70 "mini_js.y"
+#line 71 "mini_js.y"
                                  {var_type = "const"; yyval.v = yyvsp[0].v;}
-#line 1501 "y.tab.c"
+#line 1502 "y.tab.c"
     break;
 
   case 16:
-#line 71 "mini_js.y"
+#line 72 "mini_js.y"
                       {yyval.v = yyvsp[0].v + "^";}
-#line 1507 "y.tab.c"
+#line 1508 "y.tab.c"
     break;
 
   case 17:
-#line 74 "mini_js.y"
+#line 75 "mini_js.y"
                               {declarar_var(yyvsp[-3].v[0]); yyval.v = yyvsp[-3].v + "&" + yyvsp[-3].v + yyvsp[-1].v + "="+"^" + yyvsp[0].v ; }
-#line 1513 "y.tab.c"
+#line 1514 "y.tab.c"
     break;
 
   case 18:
-#line 75 "mini_js.y"
+#line 76 "mini_js.y"
                               {declarar_var(yyvsp[-1].v[0]); yyval.v = yyvsp[-1].v + "&" + yyvsp[0].v ;}
-#line 1519 "y.tab.c"
+#line 1520 "y.tab.c"
     break;
 
   case 19:
-#line 78 "mini_js.y"
+#line 79 "mini_js.y"
                         { yyval.v = yyvsp[0].v; }
-#line 1525 "y.tab.c"
+#line 1526 "y.tab.c"
     break;
 
   case 20:
-#line 79 "mini_js.y"
+#line 80 "mini_js.y"
                         { yyval.v.clear(); }
-#line 1531 "y.tab.c"
+#line 1532 "y.tab.c"
     break;
 
   case 21:
-#line 82 "mini_js.y"
+#line 83 "mini_js.y"
                                   {verificar_var(yyvsp[-2].v[0]); yyval.v = yyvsp[-2].v + yyvsp[0].v + "=";}
-#line 1537 "y.tab.c"
+#line 1538 "y.tab.c"
     break;
 
   case 22:
-#line 83 "mini_js.y"
+#line 84 "mini_js.y"
                                   {yyval.v = yyvsp[-3].v+ "@" + yyvsp[-2].v + yyvsp[0].v + "[=]"; }
-#line 1543 "y.tab.c"
+#line 1544 "y.tab.c"
     break;
 
   case 23:
-#line 84 "mini_js.y"
+#line 85 "mini_js.y"
                                   {yyval.v = yyvsp[-3].v+ "@" + yyvsp[-2].v + "[@]"+ yyvsp[0].v + "+"; }
-#line 1549 "y.tab.c"
+#line 1550 "y.tab.c"
     break;
 
   case 24:
-#line 85 "mini_js.y"
+#line 86 "mini_js.y"
                                   {yyval.v = yyvsp[-3].v+ "@" + yyvsp[-2].v + "[@]"+ yyvsp[0].v + "-"; }
-#line 1555 "y.tab.c"
+#line 1556 "y.tab.c"
     break;
 
   case 25:
-#line 86 "mini_js.y"
+#line 87 "mini_js.y"
                                   {yyval.v = yyvsp[-3].v+ "@" + yyvsp[-2].v + "[@]"+ yyvsp[0].v + "*"; }
-#line 1561 "y.tab.c"
+#line 1562 "y.tab.c"
     break;
 
   case 26:
-#line 87 "mini_js.y"
+#line 88 "mini_js.y"
                                   {yyval.v = yyvsp[-1].v+ "@" + yyvsp[0].v + "[@]";}
-#line 1567 "y.tab.c"
+#line 1568 "y.tab.c"
     break;
 
   case 28:
-#line 89 "mini_js.y"
+#line 90 "mini_js.y"
                                   {yyval.v = yyvsp[-2].v + yyvsp[-2].v + "@" + yyvsp[0].v + "+"+ "="; }
-#line 1573 "y.tab.c"
+#line 1574 "y.tab.c"
     break;
 
   case 29:
-#line 90 "mini_js.y"
+#line 91 "mini_js.y"
                                   { yyval.v = yyvsp[-3].v+ "@" + yyvsp[-2].v + yyvsp[-3].v+ "@" + yyvsp[-2].v + "[@]" + yyvsp[0].v + "+" + "[=]"; }
-#line 1579 "y.tab.c"
+#line 1580 "y.tab.c"
     break;
 
   case 30:
-#line 92 "mini_js.y"
+#line 93 "mini_js.y"
                         {verificar_var(yyvsp[-1].v[0]); yyval.v = yyvsp[-1].v + "@" + yyvsp[-1].v + yyvsp[-1].v + "@" + "1" + "+" + "=" + "^"; }
-#line 1585 "y.tab.c"
+#line 1586 "y.tab.c"
     break;
 
   case 31:
-#line 95 "mini_js.y"
+#line 96 "mini_js.y"
                                         { yyval.v = yyvsp[-2].v + "[@]" + yyvsp[0].v ; }
-#line 1591 "y.tab.c"
+#line 1592 "y.tab.c"
     break;
 
   case 32:
-#line 96 "mini_js.y"
+#line 97 "mini_js.y"
                                         { yyval.v = yyvsp[-1].v + "[@]" + yyvsp[0].v; }
-#line 1597 "y.tab.c"
+#line 1598 "y.tab.c"
     break;
 
   case 33:
-#line 97 "mini_js.y"
+#line 98 "mini_js.y"
                                         { yyval.v =  yyvsp[-1].v; }
-#line 1603 "y.tab.c"
+#line 1604 "y.tab.c"
     break;
 
   case 34:
-#line 98 "mini_js.y"
+#line 99 "mini_js.y"
                                         { yyval.v = yyvsp[0].v; }
-#line 1609 "y.tab.c"
+#line 1610 "y.tab.c"
     break;
 
   case 35:
-#line 100 "mini_js.y"
+#line 101 "mini_js.y"
                                    {
-                              string loop = gera_label("LBL_LOOP");
-                              string end_while = gera_label("LBL_ENDWHILE");
-                              yyval.v.clear(); yyval.v =  yyval.v + (":" +loop) + yyvsp[-2].v + "!" + end_while + "?" + yyvsp[0].v + loop + "#" + (":" + end_while);
+                              yyval.bloco = gera_label("LBL_LOOP");
+                              yyval.end_bloco = gera_label("LBL_ENDWHILE");
+                              yyval.v.clear(); yyval.v =  yyval.v + (":" +yyval.bloco) + yyvsp[-2].v + "!" +  yyval.end_bloco + "?" + yyvsp[0].v + yyval.bloco + "#" + (":" +  yyval.end_bloco);
                               }
-#line 1619 "y.tab.c"
+#line 1620 "y.tab.c"
     break;
 
   case 36:
-#line 107 "mini_js.y"
+#line 108 "mini_js.y"
                                                   { 
-                              string loop = gera_label("LBL_LOOP");
-                              string end_for = gera_label("LBL_ENDFOR");
-                              yyval.v = yyvsp[-6].v + (":" +loop) + yyvsp[-4].v + "!" + end_for + "?" + yyvsp[0].v + yyvsp[-2].v + "^" + loop + "#" +(":" + end_for);}
-#line 1628 "y.tab.c"
+                              yyval.bloco = gera_label("LBL_LOOP");
+                              yyval.end_bloco = gera_label("LBL_ENDFOR");
+                              yyval.v = yyvsp[-6].v + (":" +yyval.bloco) + yyvsp[-4].v + "!" + yyval.end_bloco + "?" + yyvsp[0].v + yyvsp[-2].v + "^" + yyval.bloco + "#" +(":" + yyval.end_bloco);}
+#line 1629 "y.tab.c"
     break;
 
   case 37:
-#line 112 "mini_js.y"
+#line 113 "mini_js.y"
                                        {
-                              string then = gera_label("LBL_THEN");
-                              string end_if = gera_label("LBL_ENDIF");
-                              yyval.v = yyvsp[-3].v + "!" + then + "?" + yyvsp[-1].v + end_if + "#" + (":" + then) + yyvsp[0].v +(":" + end_if);
+                              yyval.bloco = gera_label("LBL_THEN");
+                              yyval.end_bloco = gera_label("LBL_ENDIF");
+                              yyval.v = yyvsp[-3].v + "!" + yyval.bloco+ "?" + yyvsp[-1].v + yyval.end_bloco + "#" + (":" + yyval.bloco) + yyvsp[0].v +(":" + yyval.end_bloco);
                               }
-#line 1638 "y.tab.c"
+#line 1639 "y.tab.c"
     break;
 
   case 38:
-#line 118 "mini_js.y"
+#line 119 "mini_js.y"
                         {yyval.v = yyvsp[0].v; }
-#line 1644 "y.tab.c"
+#line 1645 "y.tab.c"
     break;
 
   case 39:
-#line 119 "mini_js.y"
+#line 120 "mini_js.y"
                         { yyval.v.clear(); }
-#line 1650 "y.tab.c"
+#line 1651 "y.tab.c"
     break;
 
   case 40:
-#line 122 "mini_js.y"
-                     { yyval.v = yyvsp[-2].v  + yyvsp[0].v + "<";}
-#line 1656 "y.tab.c"
+#line 123 "mini_js.y"
+                      { yyval.v = yyvsp[-2].v  + yyvsp[0].v + "<";}
+#line 1657 "y.tab.c"
     break;
 
   case 41:
-#line 123 "mini_js.y"
+#line 124 "mini_js.y"
                       { yyval.v = yyvsp[-2].v  + yyvsp[0].v + ">";}
-#line 1662 "y.tab.c"
+#line 1663 "y.tab.c"
     break;
 
   case 42:
-#line 124 "mini_js.y"
+#line 125 "mini_js.y"
                       { yyval.v = yyvsp[-2].v  + yyvsp[0].v + "==";}
-#line 1668 "y.tab.c"
+#line 1669 "y.tab.c"
     break;
 
   case 43:
-#line 125 "mini_js.y"
+#line 126 "mini_js.y"
                       { yyval.v = yyvsp[-2].v  + yyvsp[0].v + "!=";}
-#line 1674 "y.tab.c"
+#line 1675 "y.tab.c"
     break;
 
   case 45:
-#line 129 "mini_js.y"
+#line 130 "mini_js.y"
                 {yyval.v = yyvsp[-2].v + yyvsp[0].v + "+";}
-#line 1680 "y.tab.c"
+#line 1681 "y.tab.c"
     break;
 
   case 46:
-#line 130 "mini_js.y"
+#line 131 "mini_js.y"
                 {yyval.v = yyvsp[-2].v + yyvsp[0].v + "-";}
-#line 1686 "y.tab.c"
+#line 1687 "y.tab.c"
     break;
 
   case 47:
-#line 131 "mini_js.y"
+#line 132 "mini_js.y"
                 {yyval.v = yyvsp[-2].v + yyvsp[0].v + "*";}
-#line 1692 "y.tab.c"
+#line 1693 "y.tab.c"
     break;
 
   case 48:
-#line 132 "mini_js.y"
+#line 133 "mini_js.y"
                 {yyval.v = yyvsp[-2].v + yyvsp[0].v + "/";}
-#line 1698 "y.tab.c"
+#line 1699 "y.tab.c"
     break;
 
   case 51:
-#line 138 "mini_js.y"
+#line 139 "mini_js.y"
                {yyval.v = yyvsp[0].v + "@";}
-#line 1704 "y.tab.c"
+#line 1705 "y.tab.c"
     break;
 
   case 54:
-#line 141 "mini_js.y"
+#line 142 "mini_js.y"
                     {yyval.v = yyvsp[-2].v + "#";}
-#line 1710 "y.tab.c"
+#line 1711 "y.tab.c"
     break;
 
   case 55:
-#line 142 "mini_js.y"
+#line 143 "mini_js.y"
                             {yyval.v = yyvsp[-1].v + yyvsp[-3].v + "#";}
-#line 1716 "y.tab.c"
+#line 1717 "y.tab.c"
     break;
 
   case 56:
-#line 143 "mini_js.y"
+#line 144 "mini_js.y"
                     {yyval = yyvsp[-1];}
-#line 1722 "y.tab.c"
+#line 1723 "y.tab.c"
     break;
 
   case 57:
-#line 144 "mini_js.y"
+#line 145 "mini_js.y"
                 {yyval.v.clear(); yyval.v = yyval.v + "0" + yyvsp[0].v + yyvsp[-1].v;}
-#line 1728 "y.tab.c"
+#line 1729 "y.tab.c"
     break;
 
   case 58:
-#line 145 "mini_js.y"
+#line 146 "mini_js.y"
                 {yyval.v.clear(); yyval.v = yyval.v + "{}";}
-#line 1734 "y.tab.c"
+#line 1735 "y.tab.c"
     break;
 
   case 59:
-#line 146 "mini_js.y"
+#line 147 "mini_js.y"
                 {yyval.v.clear(); yyval.v = yyval.v + "[]";}
-#line 1740 "y.tab.c"
+#line 1741 "y.tab.c"
     break;
 
   case 60:
-#line 149 "mini_js.y"
+#line 150 "mini_js.y"
                        {yyval.v = yyvsp[-2].v + yyvsp[0].v;}
-#line 1746 "y.tab.c"
+#line 1747 "y.tab.c"
     break;
 
 
-#line 1750 "y.tab.c"
+#line 1751 "y.tab.c"
 
       default: break;
     }
@@ -1978,7 +1979,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 153 "mini_js.y"
+#line 154 "mini_js.y"
 
 
 #include "lex.yy.c"

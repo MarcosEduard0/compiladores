@@ -837,7 +837,7 @@ case 14:
 /* rule 14 can match eol */
 YY_RULE_SETUP
 #line 30 "mini_js.l"
-{ linha++; coluna = 1; }
+{ linha++; coluna = 0; }
 	YY_BREAK
 case 15:
 /* rule 15 can match eol */

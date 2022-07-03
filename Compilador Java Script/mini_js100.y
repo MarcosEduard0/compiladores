@@ -8,7 +8,8 @@ using namespace std;
 
 struct Atributos {
   vector<string> v;
-  string var_type;
+  string bloco;
+  string end_bloco;
 };
 
 struct Variavel{
@@ -98,21 +99,21 @@ LVALUEPROP    :   '[' A ']' LVALUEPROP  { $$.v = $2.v + "[@]" + $4.v ; }
               |   '.' ID                { $$.v = $2.v; }
               ;
 CMD_WHILE : WHILE '(' BOOL ')' CMD {
-                              string loop = gera_label("LBL_LOOP");
-                              string end_while = gera_label("LBL_ENDWHILE");
-                              $$.v.clear(); $$.v =  $$.v + (":" +loop) + $3.v + "!" + end_while + "?" + $5.v + loop + "#" + (":" + end_while);
+                              $$.bloco = gera_label("LBL_LOOP");
+                              $$.end_bloco = gera_label("LBL_ENDWHILE");
+                              $$.v.clear(); $$.v =  $$.v + (":" +$$.bloco) + $3.v + "!" +  $$.end_bloco + "?" + $5.v + $$.bloco + "#" + (":" +  $$.end_bloco);
                               }
           ;
 
 CMD_FOR : FOR '(' VARIAVEL ';' BOOL ';' A ')' CMD { 
-                              string loop = gera_label("LBL_LOOP");
-                              string end_for = gera_label("LBL_ENDFOR");
-                              $$.v = $3.v + (":" +loop) + $5.v + "!" + end_for + "?" + $9.v + $7.v + "^" + loop + "#" +(":" + end_for);}
+                              $$.bloco = gera_label("LBL_LOOP");
+                              $$.end_bloco = gera_label("LBL_ENDFOR");
+                              $$.v = $3.v + (":" +$$.bloco) + $5.v + "!" + $$.end_bloco + "?" + $9.v + $7.v + "^" + $$.bloco + "#" +(":" + $$.end_bloco);}
 
 CMD_IF  : IF '(' BOOL ')' CMD CMD_ELSE {
-                              string then = gera_label("LBL_THEN");
-                              string end_if = gera_label("LBL_ENDIF");
-                              $$.v = $3.v + "!" + then + "?" + $5.v + end_if + "#" + (":" + then) + $6.v +(":" + end_if);
+                              $$.bloco = gera_label("LBL_THEN");
+                              $$.end_bloco = gera_label("LBL_ENDIF");
+                              $$.v = $3.v + "!" + $$.bloco+ "?" + $5.v + $$.end_bloco + "#" + (":" + $$.bloco) + $6.v +(":" + $$.end_bloco);
                               } 
         ;
 CMD_ELSE  : ELSE  CMD   {$$.v = $2.v; }

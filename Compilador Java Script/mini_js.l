@@ -27,7 +27,7 @@ ID	    	{L}+({L}|{D})*
 
 "\t"            { coluna += 4; }
 " "             { coluna++; }
-"\n"	        { linha++; coluna = 1; }
+"\n"	        { linha++; coluna = 0; }
 {WS}		    { }
 {NUM}           { return retorna( NUM ); }
 {STRING}	    { return retorna( STRING ); }

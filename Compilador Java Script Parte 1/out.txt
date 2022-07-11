@@ -1,0 +1,4 @@
+
+Erro: syntax error
+Perto de :';'
+Linha: 4 Coluna: 12

@@ -10,4 +10,4 @@ var c = [
 { const a = 8;
   let b = 7;
   c = b; }
-c = c+ c++;
+var c = c+ c++;

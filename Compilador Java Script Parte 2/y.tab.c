@@ -1509,7 +1509,7 @@ yyreduce:
 
   case 11:
 #line 70 "mini_js.y"
-                        { yyval.v = yyvsp[-2].v + yyvsp[-1].v + "^"; }
+                        { yyval.v = yyvsp[-2].v + yyvsp[-1].v; }
 #line 1514 "y.tab.c"
     break;
 
@@ -1527,7 +1527,7 @@ yyreduce:
 
   case 14:
 #line 72 "mini_js.y"
-                                       {fechar_escopo(); yyval.v = yyvsp[-1].v;}
+                                       {fechar_escopo();yyval.v.clear(); yyval.v = yyval.v + "<{" + yyvsp[-1].v + "}>";}
 #line 1532 "y.tab.c"
     break;
 
@@ -1651,7 +1651,7 @@ yyreduce:
               fechar_escopo();
               // declarar_var($3.v[0]);
               string labelfunc = gera_label("LABELFUNCAO");
-              yyval.v = yyvsp[-6].v + "&" + yyvsp[-6].v + "{}" + "=" + "'&funcao'" + labelfunc + "[=]" ;
+              yyval.v = yyvsp[-6].v + "&" + yyvsp[-6].v + "{}" + "=" + "'&funcao'" + labelfunc + "[=]" + "^";
               funcoes = funcoes + (":"+labelfunc) + yyvsp[-4].v +  "arguments" + "@" + to_string(num_params) + "[@]" + "=" + "^" +yyvsp[-1].v +  "^"+ "undefined" + "@" + "'&retorno'" + "@" + "~";}
 #line 1657 "y.tab.c"
     break;
@@ -2169,8 +2169,9 @@ void declarar_var(string nome)
 {
   // cout << nome<<endl;
   map<string,Variavel> escopo = escopos.back();
-  if(escopo.count(nome) > 0 && (escopo[nome].var_type == "let" || escopo[nome].var_type == "var" || escopo[nome].var_type == "const"))
+  if(escopo.count(nome) > 0 && escopo[nome].var_type == "let")
   {
+    cout <<"PORA"<<escopo[nome].var_type<<endl;
     cout << "Erro: a variável '" << nome << "' já foi declarada na linha " << escopo[nome].linha << "." << endl;
     exit(1);
     

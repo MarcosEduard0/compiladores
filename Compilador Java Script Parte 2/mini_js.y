@@ -69,7 +69,7 @@ CMD :   VARIAVEL ';'
     |   DECLA_FUNC
     |   E ASM ';' 	{ $$.v = $1.v + $2.v; }
     |   ';'         { $$.v.clear(); } 
-    |   '{'{abrir_escopo();} CMDs '}'  {fechar_escopo(); $$.v = $3.v;}
+    |   '{'{abrir_escopo();} CMDs '}'  {fechar_escopo();$$.v.clear(); $$.v = $$.v + "<{" + $3.v + "}>";}
     ;
 
 VARIAVEL    :   LET NOMEVAR      {var_type = "let"; $$.v = $2.v;}
@@ -271,8 +271,9 @@ void declarar_var(string nome)
 {
   // cout << nome<<endl;
   map<string,Variavel> escopo = escopos.back();
-  if(escopo.count(nome) > 0 && (escopo[nome].var_type == "let" || escopo[nome].var_type == "var" || escopo[nome].var_type == "const"))
+  if(escopo.count(nome) > 0 && escopo[nome].var_type == "let")
   {
+    cout <<"PORA"<<escopo[nome].var_type<<endl;
     cout << "Erro: a variável '" << nome << "' já foi declarada na linha " << escopo[nome].linha << "." << endl;
     exit(1);
     

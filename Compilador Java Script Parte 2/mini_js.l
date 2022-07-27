@@ -13,6 +13,8 @@ BOOL        true|false
 
 %%
 
+"{"/{WS}*{ID}{WS}*":" {return retorna(ABRE_CHAVES_ATRIB); }
+"("/[^(]*")"{WS}*"=>" {num_params = 0; return retorna(ABRE_PAR_SETA);}
 
 "let"		{   return retorna(LET);}
 "const"   	{   return retorna(CONST);}
@@ -26,6 +28,8 @@ BOOL        true|false
 "while"		{   return retorna(WHILE);}
 "for"		{   return retorna(FOR);}
 "function"  {   return retorna(FUNCTION);}
+"return"    {	return retorna(RETURN);}
+"=>"        {	return retorna(SETA);}
 
 "\t"            { coluna += 4; }
 " "             { coluna++; }

@@ -27,7 +27,7 @@ string gera_index();
 string trim(const string &s, const string caracter);
 void yyerror( const char* );
 void erro( string );
-void declarar_var(string);
+int declarar_var(string);
 void verificar_var(string);
 void abrir_escopo();
 void fechar_escopo();
@@ -44,15 +44,17 @@ int linha = 1;
 int coluna = 0;
 string var_type = "let";
 int num_params = 0;
+int nivel_func = 0;
 
 %}
 
-%token NUM STRING ID IF ELSE FOR ASM
+%token NUM STRING ID IF ELSE FOR ASM RETURN
 %token IGUAL DIFERENTE MAISMAIS WHILE FUNCTION
-%token LET CONST VAR MAISIGUAL COMENTARIO
+%token LET CONST VAR MAISIGUAL COMENTARIO BOOL
 
 %left '+' '-'
 %left '*' '/'
+%left '%'
 
 %%
 
@@ -67,27 +69,40 @@ CMD :   VARIAVEL ';'
     |   CMD_WHILE
     |   CMD_FOR
     |   DECLA_FUNC
-    |   E ASM ';' 	{ $$.v = $1.v + $2.v; }
+    |   E ASM ';' 	{ $$.v = $1.v + $2.v + "^"; }
+    |   RETURN E  ';'         { $$.v = $2.v + "'&retorno'" + "@" + "~";}
     |   ';'         { $$.v.clear(); } 
-    |   '{'         {abrir_escopo();} CMDs '}'  {fechar_escopo(); $$.v = $3.v;}
+    // |   '{'{abrir_escopo();} CMDs '}'  {fechar_escopo(); $$.v.clear(); $$.v = $$.v+ $3.v;}
+    |   BLOCO_CMDs
     ;
 
-VARIAVEL    :   LET NOMEVAR      {var_type = "let"; $$.v = $2.v;}
-            |   VAR NOMEVAR      {var_type = "var"; $$.v = $2.v;}
-            |   CONST NOMEVAR    {var_type = "const"; $$.v = $2.v;}
+BLOCO_CMDs : '{''}' {$$.v.clear();}
+           | '{' { abrir_escopo(); } CMDs '}'  { fechar_escopo(); $$.v.clear(); $$.v = $$.v + "<{" + $3.v + "}>";}
+           ;
+
+VARIAVEL    :   LET   {var_type = "let";}   NOMEVAR   { $$.v = $3.v;}
+            |   VAR   {var_type = "var";}   NOMEVAR   { $$.v = $3.v; }
+            |   CONST {var_type = "const";} NOMEVAR   { $$.v = $3.v;}
             |   A     {$$.v = $1.v + "^";}
             ;
 
-NOMEVAR   : ID '=' A OUTRAVAR {declarar_var($1.v[0]); $$.v = $1.v + "&" + $1.v + $3.v + "="+"^" + $4.v ; }
-          | ID  OUTRAVAR      {declarar_var($1.v[0]); $$.v = $1.v + "&" + $2.v ;}
+NOMEVAR   : ID '=' A OUTRAVAR {
+                                // $$.v.clear();   $$.v = $1.v + "&" + $1.v + $3.v + "="+"^" + $4.v ; }
+                                $$.v.clear();  if(declarar_var($1.v[0])){$$.v = $1.v + "&";}; $$.v = $$.v + $1.v + $3.v + "="+"^" + $4.v ; }
+          // | ID  OUTRAVAR      {declarar_var($1.v[0]); $$.v = $1.v + "&" + $2.v ;}
+          | ID  OUTRAVAR      {
+                              $$.v.clear(); if(declarar_var($1.v[0])){$$.v = $1.v + "&";}; $$.v = $$.v+ $2.v ;}
           ;
 
 OUTRAVAR : ',' NOMEVAR  { $$.v = $2.v; }
          |  %empty      { $$.v.clear(); }                  
          ;
 
-A   :   ID  '=' A                 {verificar_var($1.v[0]); $$.v = $1.v + $3.v + "=";}
+// A   :   ID  '=' A                 {verificar_var($1.v[0]); $$.v = $1.v + $3.v + "=";}
+A   :   ID  '=' A                 {$$.v = $1.v + $3.v + "=";}
+    |   F  LVALUEPROP '=' A       {$$.v = $1.v + $2.v + $4.v + "[=]";}
     |   ID LVALUEPROP '=' A       {$$.v = $1.v+ "@" + $2.v + $4.v + "[=]"; }
+    |   '(' ID ')' LVALUEPROP '=' A       {$$.v = $2.v+ "@" + $4.v + $6.v + "[=]"; }
     |   ID LVALUEPROP '+' A       {$$.v = $1.v+ "@" + $2.v + "[@]"+ $4.v + "+"; }
     |   ID LVALUEPROP '-' A       {$$.v = $1.v+ "@" + $2.v + "[@]"+ $4.v + "-"; }
     |   ID LVALUEPROP '*' A       {$$.v = $1.v+ "@" + $2.v + "[@]"+ $4.v + "*"; }
@@ -97,14 +112,54 @@ A   :   ID  '=' A                 {verificar_var($1.v[0]); $$.v = $1.v + $3.v + 
     |   ID LVALUEPROP MAISIGUAL A { $$.v = $1.v+ "@" + $2.v + $1.v+ "@" + $2.v + "[@]" + $4.v + "+" + "[=]"; }
     ;
 RVALUE  : ID MAISMAIS   {verificar_var($1.v[0]); $$.v = $1.v + "@" + $1.v + $1.v + "@" + "1" + "+" + "=" + "^"; }
+        | FUNC_ANON     
+        // |  %empty      { $$.v.clear(); }    
         ;
 
-DECLA_FUNC : FUNCTION {abrir_escopo(); num_params = 0;} ID '(' ARGs_FUNC ')' '{' CMDs '}' {
+DECLA_FUNC  : FUNCTION {nivel_func ++; abrir_escopo(); num_params = 0;} ID '(' ARGs_FUNC ')' '{' CMDs '}' {
               fechar_escopo();
-              // declarar_var($3.v[0]);
+              nivel_func --;
               string labelfunc = gera_label("LABELFUNCAO");
               $$.v = $3.v + "&" + $3.v + "{}" + "=" + "'&funcao'" + labelfunc + "[=]" + "^";
-              funcoes = funcoes + (":"+labelfunc) + $5.v +  "arguments" + "@" + to_string(num_params) + "[@]" + "=" + "^" +$8.v +  "^"+ "undefined" + "@" + "'&retorno'" + "@" + "~"; 
+              funcoes = funcoes + (":"+labelfunc) + $5.v + $8.v + "undefined" + "@" + "'&retorno'" + "@" + "~"; }
+            | '(' ID ')' '('ARGs_FUNC2')' {num_params++; $$.v = $5.v + to_string(num_params) +$2.v+ "@" +"$"+"^";}
+            ;
+
+
+ARGs_FUNC :   ID {num_params++;} ',' ARGs_FUNC {
+                      $$.v.clear(); if(declarar_var($1.v[0])){$$.v = $1.v + "&";};
+                      num_params--; $$.v = $$.v + $1.v + "arguments" + "@" + to_string(num_params) + "[@]" + "=" + "^" + $4.v;}
+          
+          |   ID { $$.v.clear(); if(declarar_var($1.v[0])){$$.v = $1.v + "&";};
+                    $$.v = $$.v + $1.v + "arguments" + "@" + to_string(num_params) + "[@]" + "=" + "^";}
+          |   %empty      { $$.v.clear();}    
+          ;
+
+ARGs_FUNC2 :   ID {num_params++;} ',' ARGs_FUNC {
+                      $$.v.clear(); if(declarar_var($1.v[0])){$$.v = $1.v + "&";};
+                      num_params--; $$.v = $$.v + $1.v + "arguments" + "@" + to_string(num_params) + "[@]" + "=" + "^" + $4.v;}
+          
+          |   ID { $$.v.clear(); if(declarar_var($1.v[0])){$$.v = $1.v + "&";};
+                    $$.v = $$.v + $1.v + "@";}
+          |   %empty      { $$.v.clear();}    
+          ;
+
+PARAMS  : A PARAM {$$.v = $1.v + $2.v; num_params++; }
+        |   %empty      { $$.v.clear(); }    
+        ;
+
+PARAM  : ',' A PARAM {$$.v = $2.v + $3.v; num_params++;}
+          |   %empty      { $$.v.clear();  }     
+          ;
+
+FUNC_ANON   : FUNCTION {nivel_func ++; abrir_escopo();num_params = 0;} '(' ARGs_FUNC ')' '{' CMDs '}' {
+              fechar_escopo();
+              nivel_func --;
+              string labelfunc = gera_label("LABELFUNCAO");
+              $$.v.clear();
+              $$.v = $$.v +  "{}" + "'&funcao'" + labelfunc + "[<=]";
+              funcoes = funcoes + (":"+labelfunc) + $4.v + $7.v + "undefined" + "@" + "'&retorno'" + "@" + "~"; 
+              
  }
 
 LVALUEPROP    :   '[' A ']' LVALUEPROP  { $$.v = $2.v + "[@]" + $4.v ; }
@@ -112,19 +167,22 @@ LVALUEPROP    :   '[' A ']' LVALUEPROP  { $$.v = $2.v + "[@]" + $4.v ; }
               |   '[' A ']'             { $$.v =  $2.v; }
               |   '.' ID                { $$.v = $2.v; }
               ;
-CMD_WHILE : WHILE '(' BOOL ')' CMD {
+CMD_WHILE : WHILE '(' EBOOL ')' CMD {
                               $$.bloco = gera_label("LBL_LOOP");
                               $$.end_bloco = gera_label("LBL_ENDWHILE");
                               $$.v.clear(); $$.v =  $$.v + (":" +$$.bloco) + $3.v + "!" +  $$.end_bloco + "?" + $5.v + $$.bloco + "#" + (":" +  $$.end_bloco);
                               }
           ;
 
-CMD_FOR : FOR '(' VARIAVEL ';' BOOL ';' A ')' CMD { 
+CMD_FOR : FOR '(' VARIAVEL ';' EBOOL ';' A ')' CMD { 
                               $$.bloco = gera_label("LBL_LOOP");
                               $$.end_bloco = gera_label("LBL_ENDFOR");
                               $$.v = $3.v + (":" +$$.bloco) + $5.v + "!" + $$.end_bloco + "?" + $9.v + $7.v + "^" + $$.bloco + "#" +(":" + $$.end_bloco);}
+                              
+                              // $$.v = $3.v + $5.v + "!" + $$.bloco + "?" + (":"+$$.end_bloco) + $9.v + $7.v + "^" + $5.v + $$.end_bloco + "?" + (":"+$$.bloco);}
 
-CMD_IF  : IF '(' BOOL ')' CMD CMD_ELSE {
+
+CMD_IF  : IF '(' EBOOL ')' CMD CMD_ELSE {
                               $$.bloco = gera_label("LBL_THEN");
                               $$.end_bloco = gera_label("LBL_ENDIF");
                               $$.v = $3.v + "!" + $$.bloco+ "?" + $5.v + $$.end_bloco + "#" + (":" + $$.bloco) + $6.v +(":" + $$.end_bloco);
@@ -134,51 +192,42 @@ CMD_ELSE  : ELSE  CMD   {$$.v = $2.v; }
          |  %empty      { $$.v.clear(); }                  
           ;
 
-BOOL :  A '<' A       { $$.v = $1.v  + $3.v + "<";}
+EBOOL :  A '<' A       { $$.v = $1.v  + $3.v + "<";}
       | A '>' A       { $$.v = $1.v  + $3.v + ">";}
       | A IGUAL A     { $$.v = $1.v  + $3.v + "==";}
       | A DIFERENTE A { $$.v = $1.v  + $3.v + "!=";}
-      | E        
+      | BOOL
+      | A        
       ;
 
 E   :   E '+' E {$$.v = $1.v + $3.v + "+";}
     |   E '-' E {$$.v = $1.v + $3.v + "-";}
     |   E '*' E {$$.v = $1.v + $3.v + "*";}
     |   E '/' E {$$.v = $1.v + $3.v + "/";}
+    |   E '%' E {$$.v = $1.v + $3.v + "%";}
     |   F
     |   RVALUE
-
     ;
 
-F   :   ID     {$$.v = $1.v + "@";}
+LVALUE : ID LVALUEPROP { $$.v = $1.v+ "@" + $2.v + "[@]";}
+       | ID            {  $$.v = $1.v + "@";}
+      //  | ID MAISMAIS   {$$.v = $1.v + "@" + $1.v + $1.v + "@" + "1" + "+" + "="+"^"; }
+       ;
+
+F   :   LVALUE
+    // | ID
     |   NUM     
     |   STRING  
-    |   ID  '(' ')' {$$.v = $1.v + "#";}
-    // |   ID '(' ARGs_FUNC ')' {num_params++; $$.v = $3.v + to_string(num_params) +$1.v+ "@" +"$";}
-    |   ID  '(' ARGs ')'    {num_params++; $$.v = $3.v + to_string(num_params) +$1.v+ "@" +"$";}
-    |   '(' E ')'   {$$ = $2;}
+    |   LVALUE '(' PARAMS ')' { $$.v = $3.v + to_string(num_params) + $1.v + "$"; num_params = 0;}
+    |   '(' A ')'  {$$ = $2;}
+    // |   '(' A ')' LVALUEPROP {$$.v = $2.v + $4.v;}
+    // cout<<"OLAAA"<<endl;
     |   '-' F   {$$.v.clear(); $$.v = $$.v + "0" + $2.v + $1.v;}
     |   '{''}'  {$$.v.clear(); $$.v = $$.v + "{}";}
     |   '['']'  {$$.v.clear(); $$.v = $$.v + "[]";}
+    |   BOOL
     ;
 
-ARGs    :   E ',' ARGs {$$.v = $1.v + $3.v;}
-        |   E
-        ;
-
-F_FUNC  :   ID     
-        |   NUM     
-        |   STRING  
-        ;
-
-ARGs_FUNC     :  F_FUNC ',' ARGs {num_params++; $$.v = $1.v + "&"+ $1.v + "arguments" + "@" + to_string(num_params) + "[@]" + "=" + "^" + $3.v;}
-              |  F_FUNC {$$.v = $1.v + "&"+ $1.v; }
-              ;
- 
-// ARGs  : ID { declarar_var($1.v[0]); num_params++;} ',' ARGs {num_params--; $$.v = $1.v + "&" + $1.v + "arguments" + "@" + to_string(num_params) + "[@]" + "=" + "^" + $4.v;}
-//       | ID { declarar_var($1.v[0]); $$.v = $1.v + "&" + $1.v + "arguments" + "@" + to_string(num_params) + "[@]" + "=" + "^";}
-//                |  %empty      { $$.v.clear(); }                  
-//       ;      
 %%
 
 #include "lex.yy.c"
@@ -263,23 +312,30 @@ void verificar_var(string nome){
   exit(1);
 }
 
-void declarar_var(string nome)
+int declarar_var(string nome)
 {
-  // cout << nome<<endl;
+  // cout << nome << " "<< var_type<<endl;
   map<string,Variavel> escopo = escopos.back();
-  if(escopo.count(nome) > 0 && (escopo[nome].var_type == "let" || escopo[nome].var_type == "var" || escopo[nome].var_type == "const"))
+  if(escopo.count(nome) > 0 && escopo[nome].var_type == "let")
   {
     cout << "Erro: a variável '" << nome << "' já foi declarada na linha " << escopo[nome].linha << "." << endl;
     exit(1);
     
   }
-  else{
-    Variavel v;
-    v.var_type = var_type;
-    // cout << "entrei "<< v.var_type << nome << linha <<endl;
-    v.linha = linha;
-    escopos.back()[nome] = v;
+  
+  for(map<string,Variavel> escopo: escopos){
+    // cout << escopo[nome].var_type <<" "<< var_type<< nome<<endl;
+      if(escopo.count(nome) > 0 && escopo[nome].var_type == "var" && var_type == "var"){
+        return 0;
+      }
   }
+ 
+  Variavel v;
+  v.var_type = var_type;
+  // cout << "entrei "<< v.var_type << nome << linha <<endl;
+  v.linha = linha;
+  escopos.back()[nome] = v;
+  return 1;
 }
 void imprimir_codigo(vector<string> v){
   vector<string> codigo = resolve_enderecos(v);

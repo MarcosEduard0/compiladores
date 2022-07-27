@@ -1,0 +1,3263 @@
+Terminals unused in grammar
+
+    COMENTARIO
+
+
+Rules useless in parser due to conflicts
+
+   66 $@11: %empty
+
+
+State 6 conflicts: 2 shift/reduce
+State 45 conflicts: 3 shift/reduce
+State 64 conflicts: 2 shift/reduce
+State 67 conflicts: 3 reduce/reduce
+State 72 conflicts: 5 shift/reduce
+State 73 conflicts: 3 shift/reduce
+State 89 conflicts: 2 shift/reduce
+State 130 conflicts: 2 shift/reduce
+State 145 conflicts: 1 shift/reduce
+State 168 conflicts: 1 shift/reduce
+
+
+Grammar
+
+    0 $accept: ROOT $end
+
+    1 $@1: %empty
+
+    2 ROOT: $@1 CMDs
+
+    3 CMDs: CMD CMDs
+    4     | CMD
+
+    5 CMD: VARIAVEL ';'
+    6    | CMD_IF
+    7    | CMD_WHILE
+    8    | CMD_FOR
+    9    | DECLA_FUNC
+   10    | E ASM ';'
+   11    | RETURN E ';'
+   12    | ';'
+   13    | BLOCO_CMDs
+
+   14 $@2: %empty
+
+   15 BLOCO_CMDs: '{' $@2 CMDs '}'
+   16           | '{' '}'
+
+   17 $@3: %empty
+
+   18 VARIAVEL: LET $@3 NOMEVAR
+
+   19 $@4: %empty
+
+   20 VARIAVEL: VAR $@4 NOMEVAR
+
+   21 $@5: %empty
+
+   22 VARIAVEL: CONST $@5 NOMEVAR
+   23         | A
+
+   24 NOMEVAR: ID '=' A OUTRAVAR
+   25        | ID OUTRAVAR
+
+   26 OUTRAVAR: ',' NOMEVAR
+   27         | %empty
+
+   28 A: ID '=' A
+   29  | F LVALUEPROP '=' A
+   30  | ID LVALUEPROP '=' A
+   31  | ID LVALUEPROP '+' A
+   32  | ID LVALUEPROP '-' A
+   33  | ID LVALUEPROP '*' A
+   34  | E
+   35  | ID MAISIGUAL A
+   36  | ID LVALUEPROP MAISIGUAL A
+
+   37 RVALUE: ID MAISMAIS
+   38       | FUNC_ANON
+   39       | BLOCO_ATRIBUTOS
+   40       | '[' VETOR ']'
+   41       | FUNC_SETA
+
+   42 @6: %empty
+
+   43 VETOR: A @6 ELEMENTO
+
+   44 @7: %empty
+
+   45 ELEMENTO: ',' A @7 ELEMENTO
+   46         | %empty
+
+   47 BLOCO_ATRIBUTOS: ABRE_CHAVES_ATRIB ATRIBUTO ATRIBUTOS '}'
+
+   48 ATRIBUTOS: ',' ATRIBUTO ATRIBUTOS
+   49          | %empty
+
+   50 ATRIBUTO: ID ':' A
+
+   51 FUNC_SETA: ARGS_SETA SETA BODY_SETA
+
+   52 ARGS_SETA: ABRE_PAR_SETA ARGS ')'
+   53          | ID
+
+   54 BODY_SETA: A
+   55          | '{' CMDs '}'
+
+   56 $@8: %empty
+
+   57 DECLA_FUNC: FUNCTION $@8 ID '(' ARGs_FUNC ')' '{' CMDs '}'
+   58           | '(' ID ')' '(' ARGs_FUNC2 ')'
+
+   59 $@9: %empty
+
+   60 ARGS: ID $@9 ',' ARGS
+   61     | ID
+   62     | %empty
+
+   63 $@10: %empty
+
+   64 ARGs_FUNC: ID $@10 ',' ARGs_FUNC
+   65          | ID
+
+   66 $@11: %empty
+
+   67 ARGs_FUNC: ID $@11 '=' F ',' ARGs_FUNC
+   68          | ID '=' F
+   69          | %empty
+
+   70 $@12: %empty
+
+   71 ARGs_FUNC2: ID $@12 ',' ARGs_FUNC
+   72           | ID
+   73           | %empty
+
+   74 PARAMS: A PARAM
+   75       | %empty
+
+   76 PARAM: ',' A PARAM
+   77      | %empty
+
+   78 $@13: %empty
+
+   79 FUNC_ANON: FUNCTION $@13 '(' ARGs_FUNC ')' '{' CMDs '}'
+
+   80 LVALUEPROP: '[' A ']' LVALUEPROP
+   81           | '.' ID LVALUEPROP
+   82           | '[' A ']'
+   83           | '.' ID
+
+   84 CMD_WHILE: WHILE '(' EBOOL ')' CMD
+
+   85 CMD_FOR: FOR '(' VARIAVEL ';' EBOOL ';' A ')' CMD
+
+   86 CMD_IF: IF '(' EBOOL ')' CMD CMD_ELSE
+
+   87 CMD_ELSE: ELSE CMD
+   88         | %empty
+
+   89 EBOOL: A '<' A
+   90      | A '>' A
+   91      | A IGUAL A
+   92      | A DIFERENTE A
+   93      | A
+
+   94 E: E '+' E
+   95  | E '-' E
+   96  | E '*' E
+   97  | E '/' E
+   98  | E '%' E
+   99  | F
+  100  | RVALUE
+
+  101 LVALUE: ID LVALUEPROP
+  102       | ID
+
+  103 F: LVALUE
+  104  | NUM
+  105  | STRING
+  106  | LVALUE '(' PARAMS ')'
+  107  | '(' A ')'
+  108  | '-' F
+  109  | '{' '}'
+  110  | '[' ']'
+  111  | BOOL
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    '%' (37) 98
+    '(' (40) 57 58 79 84 85 86 106 107
+    ')' (41) 52 57 58 79 84 85 86 106 107
+    '*' (42) 33 96
+    '+' (43) 31 94
+    ',' (44) 26 45 48 60 64 67 71 76
+    '-' (45) 32 95 108
+    '.' (46) 81 83
+    '/' (47) 97
+    ':' (58) 50
+    ';' (59) 5 10 11 12 85
+    '<' (60) 89
+    '=' (61) 24 28 29 30 67 68
+    '>' (62) 90
+    '[' (91) 40 80 82 110
+    ']' (93) 40 80 82 110
+    '{' (123) 15 16 55 57 79 109
+    '}' (125) 15 16 47 55 57 79 109
+    error (256)
+    NUM (258) 104
+    STRING (259) 105
+    ID (260) 24 25 28 30 31 32 33 35 36 37 50 53 57 58 60 61 64 65 67 68 71 72 81 83 101 102
+    IF (261) 86
+    ELSE (262) 87
+    FOR (263) 85
+    ASM (264) 10
+    RETURN (265) 11
+    SETA (266) 51
+    IGUAL (267) 91
+    DIFERENTE (268) 92
+    MAISMAIS (269) 37
+    WHILE (270) 84
+    FUNCTION (271) 57 79
+    ABRE_PAR_SETA (272) 52
+    LET (273) 18
+    CONST (274) 22
+    VAR (275) 20
+    MAISIGUAL (276) 35 36
+    COMENTARIO (277)
+    BOOL (278) 111
+    ABRE_CHAVES_ATRIB (279) 47
+
+
+Nonterminals, with rules where they appear
+
+    $accept (43)
+        on left: 0
+    ROOT (44)
+        on left: 2
+        on right: 0
+    $@1 (45)
+        on left: 1
+        on right: 2
+    CMDs (46)
+        on left: 3 4
+        on right: 2 3 15 55 57 79
+    CMD (47)
+        on left: 5 6 7 8 9 10 11 12 13
+        on right: 3 4 84 85 86 87
+    BLOCO_CMDs (48)
+        on left: 15 16
+        on right: 13
+    $@2 (49)
+        on left: 14
+        on right: 15
+    VARIAVEL (50)
+        on left: 18 20 22 23
+        on right: 5 85
+    $@3 (51)
+        on left: 17
+        on right: 18
+    $@4 (52)
+        on left: 19
+        on right: 20
+    $@5 (53)
+        on left: 21
+        on right: 22
+    NOMEVAR (54)
+        on left: 24 25
+        on right: 18 20 22 26
+    OUTRAVAR (55)
+        on left: 26 27
+        on right: 24 25
+    A (56)
+        on left: 28 29 30 31 32 33 34 35 36
+        on right: 23 24 28 29 30 31 32 33 35 36 43 45 50 54 74 76 80 82 85 89 90 91 92 93 107
+    RVALUE (57)
+        on left: 37 38 39 40 41
+        on right: 100
+    VETOR (58)
+        on left: 43
+        on right: 40
+    @6 (59)
+        on left: 42
+        on right: 43
+    ELEMENTO (60)
+        on left: 45 46
+        on right: 43 45
+    @7 (61)
+        on left: 44
+        on right: 45
+    BLOCO_ATRIBUTOS (62)
+        on left: 47
+        on right: 39
+    ATRIBUTOS (63)
+        on left: 48 49
+        on right: 47 48
+    ATRIBUTO (64)
+        on left: 50
+        on right: 47 48
+    FUNC_SETA (65)
+        on left: 51
+        on right: 41
+    ARGS_SETA (66)
+        on left: 52 53
+        on right: 51
+    BODY_SETA (67)
+        on left: 54 55
+        on right: 51
+    DECLA_FUNC (68)
+        on left: 57 58
+        on right: 9
+    $@8 (69)
+        on left: 56
+        on right: 57
+    ARGS (70)
+        on left: 60 61 62
+        on right: 52 60
+    $@9 (71)
+        on left: 59
+        on right: 60
+    ARGs_FUNC (72)
+        on left: 64 65 67 68 69
+        on right: 57 64 67 71 79
+    $@10 (73)
+        on left: 63
+        on right: 64
+    $@11 (74)
+        on left: 66
+        on right: 67
+    ARGs_FUNC2 (75)
+        on left: 71 72 73
+        on right: 58
+    $@12 (76)
+        on left: 70
+        on right: 71
+    PARAMS (77)
+        on left: 74 75
+        on right: 106
+    PARAM (78)
+        on left: 76 77
+        on right: 74 76
+    FUNC_ANON (79)
+        on left: 79
+        on right: 38
+    $@13 (80)
+        on left: 78
+        on right: 79
+    LVALUEPROP (81)
+        on left: 80 81 82 83
+        on right: 29 30 31 32 33 36 80 81 101
+    CMD_WHILE (82)
+        on left: 84
+        on right: 7
+    CMD_FOR (83)
+        on left: 85
+        on right: 8
+    CMD_IF (84)
+        on left: 86
+        on right: 6
+    CMD_ELSE (85)
+        on left: 87 88
+        on right: 86
+    EBOOL (86)
+        on left: 89 90 91 92 93
+        on right: 84 85 86
+    E (87)
+        on left: 94 95 96 97 98 99 100
+        on right: 10 11 34 94 95 96 97 98
+    LVALUE (88)
+        on left: 101 102
+        on right: 103 106
+    F (89)
+        on left: 103 104 105 106 107 108 109 110 111
+        on right: 29 67 68 99 108
+
+
+State 0
+
+    0 $accept: . ROOT $end
+
+    $default  reduce using rule 1 ($@1)
+
+    ROOT  go to state 1
+    $@1   go to state 2
+
+
+State 1
+
+    0 $accept: ROOT . $end
+
+    $end  shift, and go to state 3
+
+
+State 2
+
+    2 ROOT: $@1 . CMDs
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    IF                 shift, and go to state 7
+    FOR                shift, and go to state 8
+    RETURN             shift, and go to state 9
+    WHILE              shift, and go to state 10
+    FUNCTION           shift, and go to state 11
+    ABRE_PAR_SETA      shift, and go to state 12
+    LET                shift, and go to state 13
+    CONST              shift, and go to state 14
+    VAR                shift, and go to state 15
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    ';'                shift, and go to state 19
+    '{'                shift, and go to state 20
+    '['                shift, and go to state 21
+    '('                shift, and go to state 22
+
+    CMDs             go to state 23
+    CMD              go to state 24
+    BLOCO_CMDs       go to state 25
+    VARIAVEL         go to state 26
+    A                go to state 27
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    DECLA_FUNC       go to state 32
+    FUNC_ANON        go to state 33
+    CMD_WHILE        go to state 34
+    CMD_FOR          go to state 35
+    CMD_IF           go to state 36
+    E                go to state 37
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 3
+
+    0 $accept: ROOT $end .
+
+    $default  accept
+
+
+State 4
+
+  104 F: NUM .
+
+    $default  reduce using rule 104 (F)
+
+
+State 5
+
+  105 F: STRING .
+
+    $default  reduce using rule 105 (F)
+
+
+State 6
+
+   28 A: ID . '=' A
+   30  | ID . LVALUEPROP '=' A
+   31  | ID . LVALUEPROP '+' A
+   32  | ID . LVALUEPROP '-' A
+   33  | ID . LVALUEPROP '*' A
+   35  | ID . MAISIGUAL A
+   36  | ID . LVALUEPROP MAISIGUAL A
+   37 RVALUE: ID . MAISMAIS
+   53 ARGS_SETA: ID .
+  101 LVALUE: ID . LVALUEPROP
+  102       | ID .
+
+    MAISMAIS   shift, and go to state 40
+    MAISIGUAL  shift, and go to state 41
+    '='        shift, and go to state 42
+    '['        shift, and go to state 43
+    '.'        shift, and go to state 44
+
+    SETA      reduce using rule 53 (ARGS_SETA)
+    '['       [reduce using rule 102 (LVALUE)]
+    '.'       [reduce using rule 102 (LVALUE)]
+    $default  reduce using rule 102 (LVALUE)
+
+    LVALUEPROP  go to state 45
+
+
+State 7
+
+   86 CMD_IF: IF . '(' EBOOL ')' CMD CMD_ELSE
+
+    '('  shift, and go to state 46
+
+
+State 8
+
+   85 CMD_FOR: FOR . '(' VARIAVEL ';' EBOOL ';' A ')' CMD
+
+    '('  shift, and go to state 47
+
+
+State 9
+
+   11 CMD: RETURN . E ';'
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 48
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 52
+    LVALUE           go to state 38
+    F                go to state 53
+
+
+State 10
+
+   84 CMD_WHILE: WHILE . '(' EBOOL ')' CMD
+
+    '('  shift, and go to state 54
+
+
+State 11
+
+   57 DECLA_FUNC: FUNCTION . $@8 ID '(' ARGs_FUNC ')' '{' CMDs '}'
+   79 FUNC_ANON: FUNCTION . $@13 '(' ARGs_FUNC ')' '{' CMDs '}'
+
+    '('       reduce using rule 78 ($@13)
+    $default  reduce using rule 56 ($@8)
+
+    $@8   go to state 55
+    $@13  go to state 56
+
+
+State 12
+
+   52 ARGS_SETA: ABRE_PAR_SETA . ARGS ')'
+
+    ID  shift, and go to state 57
+
+    $default  reduce using rule 62 (ARGS)
+
+    ARGS  go to state 58
+
+
+State 13
+
+   18 VARIAVEL: LET . $@3 NOMEVAR
+
+    $default  reduce using rule 17 ($@3)
+
+    $@3  go to state 59
+
+
+State 14
+
+   22 VARIAVEL: CONST . $@5 NOMEVAR
+
+    $default  reduce using rule 21 ($@5)
+
+    $@5  go to state 60
+
+
+State 15
+
+   20 VARIAVEL: VAR . $@4 NOMEVAR
+
+    $default  reduce using rule 19 ($@4)
+
+    $@4  go to state 61
+
+
+State 16
+
+  111 F: BOOL .
+
+    $default  reduce using rule 111 (F)
+
+
+State 17
+
+   47 BLOCO_ATRIBUTOS: ABRE_CHAVES_ATRIB . ATRIBUTO ATRIBUTOS '}'
+
+    ID  shift, and go to state 62
+
+    ATRIBUTO  go to state 63
+
+
+State 18
+
+  108 F: '-' . F
+
+    NUM     shift, and go to state 4
+    STRING  shift, and go to state 5
+    ID      shift, and go to state 64
+    BOOL    shift, and go to state 16
+    '-'     shift, and go to state 18
+    '{'     shift, and go to state 50
+    '['     shift, and go to state 65
+    '('     shift, and go to state 51
+
+    LVALUE  go to state 38
+    F       go to state 66
+
+
+State 19
+
+   12 CMD: ';' .
+
+    $default  reduce using rule 12 (CMD)
+
+
+State 20
+
+   15 BLOCO_CMDs: '{' . $@2 CMDs '}'
+   16           | '{' . '}'
+  109 F: '{' . '}'
+
+    '}'  shift, and go to state 67
+
+    $default  reduce using rule 14 ($@2)
+
+    $@2  go to state 68
+
+
+State 21
+
+   40 RVALUE: '[' . VETOR ']'
+  110 F: '[' . ']'
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    ']'                shift, and go to state 69
+    '('                shift, and go to state 51
+
+    A                go to state 70
+    RVALUE           go to state 28
+    VETOR            go to state 71
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 22
+
+   58 DECLA_FUNC: '(' . ID ')' '(' ARGs_FUNC2 ')'
+  107 F: '(' . A ')'
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 73
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 74
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 23
+
+    2 ROOT: $@1 CMDs .
+
+    $default  reduce using rule 2 (ROOT)
+
+
+State 24
+
+    3 CMDs: CMD . CMDs
+    4     | CMD .
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    IF                 shift, and go to state 7
+    FOR                shift, and go to state 8
+    RETURN             shift, and go to state 9
+    WHILE              shift, and go to state 10
+    FUNCTION           shift, and go to state 11
+    ABRE_PAR_SETA      shift, and go to state 12
+    LET                shift, and go to state 13
+    CONST              shift, and go to state 14
+    VAR                shift, and go to state 15
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    ';'                shift, and go to state 19
+    '{'                shift, and go to state 20
+    '['                shift, and go to state 21
+    '('                shift, and go to state 22
+
+    $default  reduce using rule 4 (CMDs)
+
+    CMDs             go to state 75
+    CMD              go to state 24
+    BLOCO_CMDs       go to state 25
+    VARIAVEL         go to state 26
+    A                go to state 27
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    DECLA_FUNC       go to state 32
+    FUNC_ANON        go to state 33
+    CMD_WHILE        go to state 34
+    CMD_FOR          go to state 35
+    CMD_IF           go to state 36
+    E                go to state 37
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 25
+
+   13 CMD: BLOCO_CMDs .
+
+    $default  reduce using rule 13 (CMD)
+
+
+State 26
+
+    5 CMD: VARIAVEL . ';'
+
+    ';'  shift, and go to state 76
+
+
+State 27
+
+   23 VARIAVEL: A .
+
+    $default  reduce using rule 23 (VARIAVEL)
+
+
+State 28
+
+  100 E: RVALUE .
+
+    $default  reduce using rule 100 (E)
+
+
+State 29
+
+   39 RVALUE: BLOCO_ATRIBUTOS .
+
+    $default  reduce using rule 39 (RVALUE)
+
+
+State 30
+
+   41 RVALUE: FUNC_SETA .
+
+    $default  reduce using rule 41 (RVALUE)
+
+
+State 31
+
+   51 FUNC_SETA: ARGS_SETA . SETA BODY_SETA
+
+    SETA  shift, and go to state 77
+
+
+State 32
+
+    9 CMD: DECLA_FUNC .
+
+    $default  reduce using rule 9 (CMD)
+
+
+State 33
+
+   38 RVALUE: FUNC_ANON .
+
+    $default  reduce using rule 38 (RVALUE)
+
+
+State 34
+
+    7 CMD: CMD_WHILE .
+
+    $default  reduce using rule 7 (CMD)
+
+
+State 35
+
+    8 CMD: CMD_FOR .
+
+    $default  reduce using rule 8 (CMD)
+
+
+State 36
+
+    6 CMD: CMD_IF .
+
+    $default  reduce using rule 6 (CMD)
+
+
+State 37
+
+   10 CMD: E . ASM ';'
+   34 A: E .
+   94 E: E . '+' E
+   95  | E . '-' E
+   96  | E . '*' E
+   97  | E . '/' E
+   98  | E . '%' E
+
+    ASM  shift, and go to state 78
+    '+'  shift, and go to state 79
+    '-'  shift, and go to state 80
+    '*'  shift, and go to state 81
+    '/'  shift, and go to state 82
+    '%'  shift, and go to state 83
+
+    $default  reduce using rule 34 (A)
+
+
+State 38
+
+  103 F: LVALUE .
+  106  | LVALUE . '(' PARAMS ')'
+
+    '('  shift, and go to state 84
+
+    $default  reduce using rule 103 (F)
+
+
+State 39
+
+   29 A: F . LVALUEPROP '=' A
+   99 E: F .
+
+    '['  shift, and go to state 43
+    '.'  shift, and go to state 44
+
+    $default  reduce using rule 99 (E)
+
+    LVALUEPROP  go to state 85
+
+
+State 40
+
+   37 RVALUE: ID MAISMAIS .
+
+    $default  reduce using rule 37 (RVALUE)
+
+
+State 41
+
+   35 A: ID MAISIGUAL . A
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 86
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 42
+
+   28 A: ID '=' . A
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 87
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 43
+
+   80 LVALUEPROP: '[' . A ']' LVALUEPROP
+   82           | '[' . A ']'
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 88
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 44
+
+   81 LVALUEPROP: '.' . ID LVALUEPROP
+   83           | '.' . ID
+
+    ID  shift, and go to state 89
+
+
+State 45
+
+   30 A: ID LVALUEPROP . '=' A
+   31  | ID LVALUEPROP . '+' A
+   32  | ID LVALUEPROP . '-' A
+   33  | ID LVALUEPROP . '*' A
+   36  | ID LVALUEPROP . MAISIGUAL A
+  101 LVALUE: ID LVALUEPROP .
+
+    MAISIGUAL  shift, and go to state 90
+    '+'        shift, and go to state 91
+    '-'        shift, and go to state 92
+    '*'        shift, and go to state 93
+    '='        shift, and go to state 94
+
+    '+'       [reduce using rule 101 (LVALUE)]
+    '-'       [reduce using rule 101 (LVALUE)]
+    '*'       [reduce using rule 101 (LVALUE)]
+    $default  reduce using rule 101 (LVALUE)
+
+
+State 46
+
+   86 CMD_IF: IF '(' . EBOOL ')' CMD CMD_ELSE
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 95
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    EBOOL            go to state 96
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 47
+
+   85 CMD_FOR: FOR '(' . VARIAVEL ';' EBOOL ';' A ')' CMD
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    LET                shift, and go to state 13
+    CONST              shift, and go to state 14
+    VAR                shift, and go to state 15
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    VARIAVEL         go to state 97
+    A                go to state 27
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 48
+
+   37 RVALUE: ID . MAISMAIS
+   53 ARGS_SETA: ID .
+  101 LVALUE: ID . LVALUEPROP
+  102       | ID .
+
+    MAISMAIS  shift, and go to state 40
+    '['       shift, and go to state 43
+    '.'       shift, and go to state 44
+
+    SETA      reduce using rule 53 (ARGS_SETA)
+    $default  reduce using rule 102 (LVALUE)
+
+    LVALUEPROP  go to state 98
+
+
+State 49
+
+   79 FUNC_ANON: FUNCTION . $@13 '(' ARGs_FUNC ')' '{' CMDs '}'
+
+    $default  reduce using rule 78 ($@13)
+
+    $@13  go to state 56
+
+
+State 50
+
+  109 F: '{' . '}'
+
+    '}'  shift, and go to state 99
+
+
+State 51
+
+  107 F: '(' . A ')'
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 74
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 52
+
+   11 CMD: RETURN E . ';'
+   94 E: E . '+' E
+   95  | E . '-' E
+   96  | E . '*' E
+   97  | E . '/' E
+   98  | E . '%' E
+
+    '+'  shift, and go to state 79
+    '-'  shift, and go to state 80
+    '*'  shift, and go to state 81
+    '/'  shift, and go to state 82
+    '%'  shift, and go to state 83
+    ';'  shift, and go to state 100
+
+
+State 53
+
+   99 E: F .
+
+    $default  reduce using rule 99 (E)
+
+
+State 54
+
+   84 CMD_WHILE: WHILE '(' . EBOOL ')' CMD
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 95
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    EBOOL            go to state 101
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 55
+
+   57 DECLA_FUNC: FUNCTION $@8 . ID '(' ARGs_FUNC ')' '{' CMDs '}'
+
+    ID  shift, and go to state 102
+
+
+State 56
+
+   79 FUNC_ANON: FUNCTION $@13 . '(' ARGs_FUNC ')' '{' CMDs '}'
+
+    '('  shift, and go to state 103
+
+
+State 57
+
+   60 ARGS: ID . $@9 ',' ARGS
+   61     | ID .
+
+    ')'       reduce using rule 61 (ARGS)
+    $default  reduce using rule 59 ($@9)
+
+    $@9  go to state 104
+
+
+State 58
+
+   52 ARGS_SETA: ABRE_PAR_SETA ARGS . ')'
+
+    ')'  shift, and go to state 105
+
+
+State 59
+
+   18 VARIAVEL: LET $@3 . NOMEVAR
+
+    ID  shift, and go to state 106
+
+    NOMEVAR  go to state 107
+
+
+State 60
+
+   22 VARIAVEL: CONST $@5 . NOMEVAR
+
+    ID  shift, and go to state 106
+
+    NOMEVAR  go to state 108
+
+
+State 61
+
+   20 VARIAVEL: VAR $@4 . NOMEVAR
+
+    ID  shift, and go to state 106
+
+    NOMEVAR  go to state 109
+
+
+State 62
+
+   50 ATRIBUTO: ID . ':' A
+
+    ':'  shift, and go to state 110
+
+
+State 63
+
+   47 BLOCO_ATRIBUTOS: ABRE_CHAVES_ATRIB ATRIBUTO . ATRIBUTOS '}'
+
+    ','  shift, and go to state 111
+
+    $default  reduce using rule 49 (ATRIBUTOS)
+
+    ATRIBUTOS  go to state 112
+
+
+State 64
+
+  101 LVALUE: ID . LVALUEPROP
+  102       | ID .
+
+    '['  shift, and go to state 43
+    '.'  shift, and go to state 44
+
+    '['       [reduce using rule 102 (LVALUE)]
+    '.'       [reduce using rule 102 (LVALUE)]
+    $default  reduce using rule 102 (LVALUE)
+
+    LVALUEPROP  go to state 98
+
+
+State 65
+
+  110 F: '[' . ']'
+
+    ']'  shift, and go to state 69
+
+
+State 66
+
+  108 F: '-' F .
+
+    $default  reduce using rule 108 (F)
+
+
+State 67
+
+   16 BLOCO_CMDs: '{' '}' .
+  109 F: '{' '}' .
+
+    ASM       reduce using rule 109 (F)
+    '+'       reduce using rule 109 (F)
+    '-'       reduce using rule 16 (BLOCO_CMDs)
+    '-'       [reduce using rule 109 (F)]
+    '*'       reduce using rule 109 (F)
+    '/'       reduce using rule 109 (F)
+    '%'       reduce using rule 109 (F)
+    ';'       reduce using rule 16 (BLOCO_CMDs)
+    ';'       [reduce using rule 109 (F)]
+    '['       reduce using rule 16 (BLOCO_CMDs)
+    '['       [reduce using rule 109 (F)]
+    '.'       reduce using rule 109 (F)
+    $default  reduce using rule 16 (BLOCO_CMDs)
+
+
+State 68
+
+   15 BLOCO_CMDs: '{' $@2 . CMDs '}'
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    IF                 shift, and go to state 7
+    FOR                shift, and go to state 8
+    RETURN             shift, and go to state 9
+    WHILE              shift, and go to state 10
+    FUNCTION           shift, and go to state 11
+    ABRE_PAR_SETA      shift, and go to state 12
+    LET                shift, and go to state 13
+    CONST              shift, and go to state 14
+    VAR                shift, and go to state 15
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    ';'                shift, and go to state 19
+    '{'                shift, and go to state 20
+    '['                shift, and go to state 21
+    '('                shift, and go to state 22
+
+    CMDs             go to state 113
+    CMD              go to state 24
+    BLOCO_CMDs       go to state 25
+    VARIAVEL         go to state 26
+    A                go to state 27
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    DECLA_FUNC       go to state 32
+    FUNC_ANON        go to state 33
+    CMD_WHILE        go to state 34
+    CMD_FOR          go to state 35
+    CMD_IF           go to state 36
+    E                go to state 37
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 69
+
+  110 F: '[' ']' .
+
+    $default  reduce using rule 110 (F)
+
+
+State 70
+
+   43 VETOR: A . @6 ELEMENTO
+
+    $default  reduce using rule 42 (@6)
+
+    @6  go to state 114
+
+
+State 71
+
+   40 RVALUE: '[' VETOR . ']'
+
+    ']'  shift, and go to state 115
+
+
+State 72
+
+   34 A: E .
+   94 E: E . '+' E
+   95  | E . '-' E
+   96  | E . '*' E
+   97  | E . '/' E
+   98  | E . '%' E
+
+    '+'  shift, and go to state 79
+    '-'  shift, and go to state 80
+    '*'  shift, and go to state 81
+    '/'  shift, and go to state 82
+    '%'  shift, and go to state 83
+
+    '+'       [reduce using rule 34 (A)]
+    '-'       [reduce using rule 34 (A)]
+    '*'       [reduce using rule 34 (A)]
+    '/'       [reduce using rule 34 (A)]
+    '%'       [reduce using rule 34 (A)]
+    $default  reduce using rule 34 (A)
+
+
+State 73
+
+   28 A: ID . '=' A
+   30  | ID . LVALUEPROP '=' A
+   31  | ID . LVALUEPROP '+' A
+   32  | ID . LVALUEPROP '-' A
+   33  | ID . LVALUEPROP '*' A
+   35  | ID . MAISIGUAL A
+   36  | ID . LVALUEPROP MAISIGUAL A
+   37 RVALUE: ID . MAISMAIS
+   53 ARGS_SETA: ID .
+   58 DECLA_FUNC: '(' ID . ')' '(' ARGs_FUNC2 ')'
+  101 LVALUE: ID . LVALUEPROP
+  102       | ID .
+
+    MAISMAIS   shift, and go to state 40
+    MAISIGUAL  shift, and go to state 41
+    '='        shift, and go to state 42
+    '['        shift, and go to state 43
+    ')'        shift, and go to state 116
+    '.'        shift, and go to state 44
+
+    SETA      reduce using rule 53 (ARGS_SETA)
+    '['       [reduce using rule 102 (LVALUE)]
+    ')'       [reduce using rule 102 (LVALUE)]
+    '.'       [reduce using rule 102 (LVALUE)]
+    $default  reduce using rule 102 (LVALUE)
+
+    LVALUEPROP  go to state 45
+
+
+State 74
+
+  107 F: '(' A . ')'
+
+    ')'  shift, and go to state 117
+
+
+State 75
+
+    3 CMDs: CMD CMDs .
+
+    $default  reduce using rule 3 (CMDs)
+
+
+State 76
+
+    5 CMD: VARIAVEL ';' .
+
+    $default  reduce using rule 5 (CMD)
+
+
+State 77
+
+   51 FUNC_SETA: ARGS_SETA SETA . BODY_SETA
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 118
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 119
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    BODY_SETA        go to state 120
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 78
+
+   10 CMD: E ASM . ';'
+
+    ';'  shift, and go to state 121
+
+
+State 79
+
+   94 E: E '+' . E
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 48
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 122
+    LVALUE           go to state 38
+    F                go to state 53
+
+
+State 80
+
+   95 E: E '-' . E
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 48
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 123
+    LVALUE           go to state 38
+    F                go to state 53
+
+
+State 81
+
+   96 E: E '*' . E
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 48
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 124
+    LVALUE           go to state 38
+    F                go to state 53
+
+
+State 82
+
+   97 E: E '/' . E
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 48
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 125
+    LVALUE           go to state 38
+    F                go to state 53
+
+
+State 83
+
+   98 E: E '%' . E
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 48
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 126
+    LVALUE           go to state 38
+    F                go to state 53
+
+
+State 84
+
+  106 F: LVALUE '(' . PARAMS ')'
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    $default  reduce using rule 75 (PARAMS)
+
+    A                go to state 127
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    PARAMS           go to state 128
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 85
+
+   29 A: F LVALUEPROP . '=' A
+
+    '='  shift, and go to state 129
+
+
+State 86
+
+   35 A: ID MAISIGUAL A .
+
+    $default  reduce using rule 35 (A)
+
+
+State 87
+
+   28 A: ID '=' A .
+
+    $default  reduce using rule 28 (A)
+
+
+State 88
+
+   80 LVALUEPROP: '[' A . ']' LVALUEPROP
+   82           | '[' A . ']'
+
+    ']'  shift, and go to state 130
+
+
+State 89
+
+   81 LVALUEPROP: '.' ID . LVALUEPROP
+   83           | '.' ID .
+
+    '['  shift, and go to state 43
+    '.'  shift, and go to state 44
+
+    '['       [reduce using rule 83 (LVALUEPROP)]
+    '.'       [reduce using rule 83 (LVALUEPROP)]
+    $default  reduce using rule 83 (LVALUEPROP)
+
+    LVALUEPROP  go to state 131
+
+
+State 90
+
+   36 A: ID LVALUEPROP MAISIGUAL . A
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 132
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 91
+
+   31 A: ID LVALUEPROP '+' . A
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 133
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 92
+
+   32 A: ID LVALUEPROP '-' . A
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 134
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 93
+
+   33 A: ID LVALUEPROP '*' . A
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 135
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 94
+
+   30 A: ID LVALUEPROP '=' . A
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 136
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 95
+
+   89 EBOOL: A . '<' A
+   90      | A . '>' A
+   91      | A . IGUAL A
+   92      | A . DIFERENTE A
+   93      | A .
+
+    IGUAL      shift, and go to state 137
+    DIFERENTE  shift, and go to state 138
+    '<'        shift, and go to state 139
+    '>'        shift, and go to state 140
+
+    $default  reduce using rule 93 (EBOOL)
+
+
+State 96
+
+   86 CMD_IF: IF '(' EBOOL . ')' CMD CMD_ELSE
+
+    ')'  shift, and go to state 141
+
+
+State 97
+
+   85 CMD_FOR: FOR '(' VARIAVEL . ';' EBOOL ';' A ')' CMD
+
+    ';'  shift, and go to state 142
+
+
+State 98
+
+  101 LVALUE: ID LVALUEPROP .
+
+    $default  reduce using rule 101 (LVALUE)
+
+
+State 99
+
+  109 F: '{' '}' .
+
+    $default  reduce using rule 109 (F)
+
+
+State 100
+
+   11 CMD: RETURN E ';' .
+
+    $default  reduce using rule 11 (CMD)
+
+
+State 101
+
+   84 CMD_WHILE: WHILE '(' EBOOL . ')' CMD
+
+    ')'  shift, and go to state 143
+
+
+State 102
+
+   57 DECLA_FUNC: FUNCTION $@8 ID . '(' ARGs_FUNC ')' '{' CMDs '}'
+
+    '('  shift, and go to state 144
+
+
+State 103
+
+   79 FUNC_ANON: FUNCTION $@13 '(' . ARGs_FUNC ')' '{' CMDs '}'
+
+    ID  shift, and go to state 145
+
+    $default  reduce using rule 69 (ARGs_FUNC)
+
+    ARGs_FUNC  go to state 146
+
+
+State 104
+
+   60 ARGS: ID $@9 . ',' ARGS
+
+    ','  shift, and go to state 147
+
+
+State 105
+
+   52 ARGS_SETA: ABRE_PAR_SETA ARGS ')' .
+
+    $default  reduce using rule 52 (ARGS_SETA)
+
+
+State 106
+
+   24 NOMEVAR: ID . '=' A OUTRAVAR
+   25        | ID . OUTRAVAR
+
+    '='  shift, and go to state 148
+    ','  shift, and go to state 149
+
+    $default  reduce using rule 27 (OUTRAVAR)
+
+    OUTRAVAR  go to state 150
+
+
+State 107
+
+   18 VARIAVEL: LET $@3 NOMEVAR .
+
+    $default  reduce using rule 18 (VARIAVEL)
+
+
+State 108
+
+   22 VARIAVEL: CONST $@5 NOMEVAR .
+
+    $default  reduce using rule 22 (VARIAVEL)
+
+
+State 109
+
+   20 VARIAVEL: VAR $@4 NOMEVAR .
+
+    $default  reduce using rule 20 (VARIAVEL)
+
+
+State 110
+
+   50 ATRIBUTO: ID ':' . A
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 151
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 111
+
+   48 ATRIBUTOS: ',' . ATRIBUTO ATRIBUTOS
+
+    ID  shift, and go to state 62
+
+    ATRIBUTO  go to state 152
+
+
+State 112
+
+   47 BLOCO_ATRIBUTOS: ABRE_CHAVES_ATRIB ATRIBUTO ATRIBUTOS . '}'
+
+    '}'  shift, and go to state 153
+
+
+State 113
+
+   15 BLOCO_CMDs: '{' $@2 CMDs . '}'
+
+    '}'  shift, and go to state 154
+
+
+State 114
+
+   43 VETOR: A @6 . ELEMENTO
+
+    ','  shift, and go to state 155
+
+    $default  reduce using rule 46 (ELEMENTO)
+
+    ELEMENTO  go to state 156
+
+
+State 115
+
+   40 RVALUE: '[' VETOR ']' .
+
+    $default  reduce using rule 40 (RVALUE)
+
+
+State 116
+
+   58 DECLA_FUNC: '(' ID ')' . '(' ARGs_FUNC2 ')'
+
+    '('  shift, and go to state 157
+
+
+State 117
+
+  107 F: '(' A ')' .
+
+    $default  reduce using rule 107 (F)
+
+
+State 118
+
+   55 BODY_SETA: '{' . CMDs '}'
+  109 F: '{' . '}'
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    IF                 shift, and go to state 7
+    FOR                shift, and go to state 8
+    RETURN             shift, and go to state 9
+    WHILE              shift, and go to state 10
+    FUNCTION           shift, and go to state 11
+    ABRE_PAR_SETA      shift, and go to state 12
+    LET                shift, and go to state 13
+    CONST              shift, and go to state 14
+    VAR                shift, and go to state 15
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    ';'                shift, and go to state 19
+    '{'                shift, and go to state 20
+    '}'                shift, and go to state 99
+    '['                shift, and go to state 21
+    '('                shift, and go to state 22
+
+    CMDs             go to state 158
+    CMD              go to state 24
+    BLOCO_CMDs       go to state 25
+    VARIAVEL         go to state 26
+    A                go to state 27
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    DECLA_FUNC       go to state 32
+    FUNC_ANON        go to state 33
+    CMD_WHILE        go to state 34
+    CMD_FOR          go to state 35
+    CMD_IF           go to state 36
+    E                go to state 37
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 119
+
+   54 BODY_SETA: A .
+
+    $default  reduce using rule 54 (BODY_SETA)
+
+
+State 120
+
+   51 FUNC_SETA: ARGS_SETA SETA BODY_SETA .
+
+    $default  reduce using rule 51 (FUNC_SETA)
+
+
+State 121
+
+   10 CMD: E ASM ';' .
+
+    $default  reduce using rule 10 (CMD)
+
+
+State 122
+
+   94 E: E . '+' E
+   94  | E '+' E .
+   95  | E . '-' E
+   96  | E . '*' E
+   97  | E . '/' E
+   98  | E . '%' E
+
+    '*'  shift, and go to state 81
+    '/'  shift, and go to state 82
+    '%'  shift, and go to state 83
+
+    $default  reduce using rule 94 (E)
+
+
+State 123
+
+   94 E: E . '+' E
+   95  | E . '-' E
+   95  | E '-' E .
+   96  | E . '*' E
+   97  | E . '/' E
+   98  | E . '%' E
+
+    '*'  shift, and go to state 81
+    '/'  shift, and go to state 82
+    '%'  shift, and go to state 83
+
+    $default  reduce using rule 95 (E)
+
+
+State 124
+
+   94 E: E . '+' E
+   95  | E . '-' E
+   96  | E . '*' E
+   96  | E '*' E .
+   97  | E . '/' E
+   98  | E . '%' E
+
+    '%'  shift, and go to state 83
+
+    $default  reduce using rule 96 (E)
+
+
+State 125
+
+   94 E: E . '+' E
+   95  | E . '-' E
+   96  | E . '*' E
+   97  | E . '/' E
+   97  | E '/' E .
+   98  | E . '%' E
+
+    '%'  shift, and go to state 83
+
+    $default  reduce using rule 97 (E)
+
+
+State 126
+
+   94 E: E . '+' E
+   95  | E . '-' E
+   96  | E . '*' E
+   97  | E . '/' E
+   98  | E . '%' E
+   98  | E '%' E .
+
+    $default  reduce using rule 98 (E)
+
+
+State 127
+
+   74 PARAMS: A . PARAM
+
+    ','  shift, and go to state 159
+
+    $default  reduce using rule 77 (PARAM)
+
+    PARAM  go to state 160
+
+
+State 128
+
+  106 F: LVALUE '(' PARAMS . ')'
+
+    ')'  shift, and go to state 161
+
+
+State 129
+
+   29 A: F LVALUEPROP '=' . A
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 162
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 130
+
+   80 LVALUEPROP: '[' A ']' . LVALUEPROP
+   82           | '[' A ']' .
+
+    '['  shift, and go to state 43
+    '.'  shift, and go to state 44
+
+    '['       [reduce using rule 82 (LVALUEPROP)]
+    '.'       [reduce using rule 82 (LVALUEPROP)]
+    $default  reduce using rule 82 (LVALUEPROP)
+
+    LVALUEPROP  go to state 163
+
+
+State 131
+
+   81 LVALUEPROP: '.' ID LVALUEPROP .
+
+    $default  reduce using rule 81 (LVALUEPROP)
+
+
+State 132
+
+   36 A: ID LVALUEPROP MAISIGUAL A .
+
+    $default  reduce using rule 36 (A)
+
+
+State 133
+
+   31 A: ID LVALUEPROP '+' A .
+
+    $default  reduce using rule 31 (A)
+
+
+State 134
+
+   32 A: ID LVALUEPROP '-' A .
+
+    $default  reduce using rule 32 (A)
+
+
+State 135
+
+   33 A: ID LVALUEPROP '*' A .
+
+    $default  reduce using rule 33 (A)
+
+
+State 136
+
+   30 A: ID LVALUEPROP '=' A .
+
+    $default  reduce using rule 30 (A)
+
+
+State 137
+
+   91 EBOOL: A IGUAL . A
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 164
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 138
+
+   92 EBOOL: A DIFERENTE . A
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 165
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 139
+
+   89 EBOOL: A '<' . A
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 166
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 140
+
+   90 EBOOL: A '>' . A
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 167
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 141
+
+   86 CMD_IF: IF '(' EBOOL ')' . CMD CMD_ELSE
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    IF                 shift, and go to state 7
+    FOR                shift, and go to state 8
+    RETURN             shift, and go to state 9
+    WHILE              shift, and go to state 10
+    FUNCTION           shift, and go to state 11
+    ABRE_PAR_SETA      shift, and go to state 12
+    LET                shift, and go to state 13
+    CONST              shift, and go to state 14
+    VAR                shift, and go to state 15
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    ';'                shift, and go to state 19
+    '{'                shift, and go to state 20
+    '['                shift, and go to state 21
+    '('                shift, and go to state 22
+
+    CMD              go to state 168
+    BLOCO_CMDs       go to state 25
+    VARIAVEL         go to state 26
+    A                go to state 27
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    DECLA_FUNC       go to state 32
+    FUNC_ANON        go to state 33
+    CMD_WHILE        go to state 34
+    CMD_FOR          go to state 35
+    CMD_IF           go to state 36
+    E                go to state 37
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 142
+
+   85 CMD_FOR: FOR '(' VARIAVEL ';' . EBOOL ';' A ')' CMD
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 95
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    EBOOL            go to state 169
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 143
+
+   84 CMD_WHILE: WHILE '(' EBOOL ')' . CMD
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    IF                 shift, and go to state 7
+    FOR                shift, and go to state 8
+    RETURN             shift, and go to state 9
+    WHILE              shift, and go to state 10
+    FUNCTION           shift, and go to state 11
+    ABRE_PAR_SETA      shift, and go to state 12
+    LET                shift, and go to state 13
+    CONST              shift, and go to state 14
+    VAR                shift, and go to state 15
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    ';'                shift, and go to state 19
+    '{'                shift, and go to state 20
+    '['                shift, and go to state 21
+    '('                shift, and go to state 22
+
+    CMD              go to state 170
+    BLOCO_CMDs       go to state 25
+    VARIAVEL         go to state 26
+    A                go to state 27
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    DECLA_FUNC       go to state 32
+    FUNC_ANON        go to state 33
+    CMD_WHILE        go to state 34
+    CMD_FOR          go to state 35
+    CMD_IF           go to state 36
+    E                go to state 37
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 144
+
+   57 DECLA_FUNC: FUNCTION $@8 ID '(' . ARGs_FUNC ')' '{' CMDs '}'
+
+    ID  shift, and go to state 145
+
+    $default  reduce using rule 69 (ARGs_FUNC)
+
+    ARGs_FUNC  go to state 171
+
+
+State 145
+
+   64 ARGs_FUNC: ID . $@10 ',' ARGs_FUNC
+   65          | ID .
+   67          | ID . $@11 '=' F ',' ARGs_FUNC
+   68          | ID . '=' F
+
+    '='  shift, and go to state 172
+
+    '='       [reduce using rule 66 ($@11)]
+    ')'       reduce using rule 65 (ARGs_FUNC)
+    $default  reduce using rule 63 ($@10)
+
+    $@10  go to state 173
+    $@11  go to state 174
+
+
+State 146
+
+   79 FUNC_ANON: FUNCTION $@13 '(' ARGs_FUNC . ')' '{' CMDs '}'
+
+    ')'  shift, and go to state 175
+
+
+State 147
+
+   60 ARGS: ID $@9 ',' . ARGS
+
+    ID  shift, and go to state 57
+
+    $default  reduce using rule 62 (ARGS)
+
+    ARGS  go to state 176
+
+
+State 148
+
+   24 NOMEVAR: ID '=' . A OUTRAVAR
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 177
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 149
+
+   26 OUTRAVAR: ',' . NOMEVAR
+
+    ID  shift, and go to state 106
+
+    NOMEVAR  go to state 178
+
+
+State 150
+
+   25 NOMEVAR: ID OUTRAVAR .
+
+    $default  reduce using rule 25 (NOMEVAR)
+
+
+State 151
+
+   50 ATRIBUTO: ID ':' A .
+
+    $default  reduce using rule 50 (ATRIBUTO)
+
+
+State 152
+
+   48 ATRIBUTOS: ',' ATRIBUTO . ATRIBUTOS
+
+    ','  shift, and go to state 111
+
+    $default  reduce using rule 49 (ATRIBUTOS)
+
+    ATRIBUTOS  go to state 179
+
+
+State 153
+
+   47 BLOCO_ATRIBUTOS: ABRE_CHAVES_ATRIB ATRIBUTO ATRIBUTOS '}' .
+
+    $default  reduce using rule 47 (BLOCO_ATRIBUTOS)
+
+
+State 154
+
+   15 BLOCO_CMDs: '{' $@2 CMDs '}' .
+
+    $default  reduce using rule 15 (BLOCO_CMDs)
+
+
+State 155
+
+   45 ELEMENTO: ',' . A @7 ELEMENTO
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 180
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 156
+
+   43 VETOR: A @6 ELEMENTO .
+
+    $default  reduce using rule 43 (VETOR)
+
+
+State 157
+
+   58 DECLA_FUNC: '(' ID ')' '(' . ARGs_FUNC2 ')'
+
+    ID  shift, and go to state 181
+
+    $default  reduce using rule 73 (ARGs_FUNC2)
+
+    ARGs_FUNC2  go to state 182
+
+
+State 158
+
+   55 BODY_SETA: '{' CMDs . '}'
+
+    '}'  shift, and go to state 183
+
+
+State 159
+
+   76 PARAM: ',' . A PARAM
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 184
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 160
+
+   74 PARAMS: A PARAM .
+
+    $default  reduce using rule 74 (PARAMS)
+
+
+State 161
+
+  106 F: LVALUE '(' PARAMS ')' .
+
+    $default  reduce using rule 106 (F)
+
+
+State 162
+
+   29 A: F LVALUEPROP '=' A .
+
+    $default  reduce using rule 29 (A)
+
+
+State 163
+
+   80 LVALUEPROP: '[' A ']' LVALUEPROP .
+
+    $default  reduce using rule 80 (LVALUEPROP)
+
+
+State 164
+
+   91 EBOOL: A IGUAL A .
+
+    $default  reduce using rule 91 (EBOOL)
+
+
+State 165
+
+   92 EBOOL: A DIFERENTE A .
+
+    $default  reduce using rule 92 (EBOOL)
+
+
+State 166
+
+   89 EBOOL: A '<' A .
+
+    $default  reduce using rule 89 (EBOOL)
+
+
+State 167
+
+   90 EBOOL: A '>' A .
+
+    $default  reduce using rule 90 (EBOOL)
+
+
+State 168
+
+   86 CMD_IF: IF '(' EBOOL ')' CMD . CMD_ELSE
+
+    ELSE  shift, and go to state 185
+
+    ELSE      [reduce using rule 88 (CMD_ELSE)]
+    $default  reduce using rule 88 (CMD_ELSE)
+
+    CMD_ELSE  go to state 186
+
+
+State 169
+
+   85 CMD_FOR: FOR '(' VARIAVEL ';' EBOOL . ';' A ')' CMD
+
+    ';'  shift, and go to state 187
+
+
+State 170
+
+   84 CMD_WHILE: WHILE '(' EBOOL ')' CMD .
+
+    $default  reduce using rule 84 (CMD_WHILE)
+
+
+State 171
+
+   57 DECLA_FUNC: FUNCTION $@8 ID '(' ARGs_FUNC . ')' '{' CMDs '}'
+
+    ')'  shift, and go to state 188
+
+
+State 172
+
+   68 ARGs_FUNC: ID '=' . F
+
+    NUM     shift, and go to state 4
+    STRING  shift, and go to state 5
+    ID      shift, and go to state 64
+    BOOL    shift, and go to state 16
+    '-'     shift, and go to state 18
+    '{'     shift, and go to state 50
+    '['     shift, and go to state 65
+    '('     shift, and go to state 51
+
+    LVALUE  go to state 38
+    F       go to state 189
+
+
+State 173
+
+   64 ARGs_FUNC: ID $@10 . ',' ARGs_FUNC
+
+    ','  shift, and go to state 190
+
+
+State 174
+
+   67 ARGs_FUNC: ID $@11 . '=' F ',' ARGs_FUNC
+
+    '='  shift, and go to state 191
+
+
+State 175
+
+   79 FUNC_ANON: FUNCTION $@13 '(' ARGs_FUNC ')' . '{' CMDs '}'
+
+    '{'  shift, and go to state 192
+
+
+State 176
+
+   60 ARGS: ID $@9 ',' ARGS .
+
+    $default  reduce using rule 60 (ARGS)
+
+
+State 177
+
+   24 NOMEVAR: ID '=' A . OUTRAVAR
+
+    ','  shift, and go to state 149
+
+    $default  reduce using rule 27 (OUTRAVAR)
+
+    OUTRAVAR  go to state 193
+
+
+State 178
+
+   26 OUTRAVAR: ',' NOMEVAR .
+
+    $default  reduce using rule 26 (OUTRAVAR)
+
+
+State 179
+
+   48 ATRIBUTOS: ',' ATRIBUTO ATRIBUTOS .
+
+    $default  reduce using rule 48 (ATRIBUTOS)
+
+
+State 180
+
+   45 ELEMENTO: ',' A . @7 ELEMENTO
+
+    $default  reduce using rule 44 (@7)
+
+    @7  go to state 194
+
+
+State 181
+
+   71 ARGs_FUNC2: ID . $@12 ',' ARGs_FUNC
+   72           | ID .
+
+    ')'       reduce using rule 72 (ARGs_FUNC2)
+    $default  reduce using rule 70 ($@12)
+
+    $@12  go to state 195
+
+
+State 182
+
+   58 DECLA_FUNC: '(' ID ')' '(' ARGs_FUNC2 . ')'
+
+    ')'  shift, and go to state 196
+
+
+State 183
+
+   55 BODY_SETA: '{' CMDs '}' .
+
+    $default  reduce using rule 55 (BODY_SETA)
+
+
+State 184
+
+   76 PARAM: ',' A . PARAM
+
+    ','  shift, and go to state 159
+
+    $default  reduce using rule 77 (PARAM)
+
+    PARAM  go to state 197
+
+
+State 185
+
+   87 CMD_ELSE: ELSE . CMD
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    IF                 shift, and go to state 7
+    FOR                shift, and go to state 8
+    RETURN             shift, and go to state 9
+    WHILE              shift, and go to state 10
+    FUNCTION           shift, and go to state 11
+    ABRE_PAR_SETA      shift, and go to state 12
+    LET                shift, and go to state 13
+    CONST              shift, and go to state 14
+    VAR                shift, and go to state 15
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    ';'                shift, and go to state 19
+    '{'                shift, and go to state 20
+    '['                shift, and go to state 21
+    '('                shift, and go to state 22
+
+    CMD              go to state 198
+    BLOCO_CMDs       go to state 25
+    VARIAVEL         go to state 26
+    A                go to state 27
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    DECLA_FUNC       go to state 32
+    FUNC_ANON        go to state 33
+    CMD_WHILE        go to state 34
+    CMD_FOR          go to state 35
+    CMD_IF           go to state 36
+    E                go to state 37
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 186
+
+   86 CMD_IF: IF '(' EBOOL ')' CMD CMD_ELSE .
+
+    $default  reduce using rule 86 (CMD_IF)
+
+
+State 187
+
+   85 CMD_FOR: FOR '(' VARIAVEL ';' EBOOL ';' . A ')' CMD
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    FUNCTION           shift, and go to state 49
+    ABRE_PAR_SETA      shift, and go to state 12
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    '{'                shift, and go to state 50
+    '['                shift, and go to state 21
+    '('                shift, and go to state 51
+
+    A                go to state 199
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    FUNC_ANON        go to state 33
+    E                go to state 72
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 188
+
+   57 DECLA_FUNC: FUNCTION $@8 ID '(' ARGs_FUNC ')' . '{' CMDs '}'
+
+    '{'  shift, and go to state 200
+
+
+State 189
+
+   68 ARGs_FUNC: ID '=' F .
+
+    $default  reduce using rule 68 (ARGs_FUNC)
+
+
+State 190
+
+   64 ARGs_FUNC: ID $@10 ',' . ARGs_FUNC
+
+    ID  shift, and go to state 145
+
+    $default  reduce using rule 69 (ARGs_FUNC)
+
+    ARGs_FUNC  go to state 201
+
+
+State 191
+
+   67 ARGs_FUNC: ID $@11 '=' . F ',' ARGs_FUNC
+
+    NUM     shift, and go to state 4
+    STRING  shift, and go to state 5
+    ID      shift, and go to state 64
+    BOOL    shift, and go to state 16
+    '-'     shift, and go to state 18
+    '{'     shift, and go to state 50
+    '['     shift, and go to state 65
+    '('     shift, and go to state 51
+
+    LVALUE  go to state 38
+    F       go to state 202
+
+
+State 192
+
+   79 FUNC_ANON: FUNCTION $@13 '(' ARGs_FUNC ')' '{' . CMDs '}'
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    IF                 shift, and go to state 7
+    FOR                shift, and go to state 8
+    RETURN             shift, and go to state 9
+    WHILE              shift, and go to state 10
+    FUNCTION           shift, and go to state 11
+    ABRE_PAR_SETA      shift, and go to state 12
+    LET                shift, and go to state 13
+    CONST              shift, and go to state 14
+    VAR                shift, and go to state 15
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    ';'                shift, and go to state 19
+    '{'                shift, and go to state 20
+    '['                shift, and go to state 21
+    '('                shift, and go to state 22
+
+    CMDs             go to state 203
+    CMD              go to state 24
+    BLOCO_CMDs       go to state 25
+    VARIAVEL         go to state 26
+    A                go to state 27
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    DECLA_FUNC       go to state 32
+    FUNC_ANON        go to state 33
+    CMD_WHILE        go to state 34
+    CMD_FOR          go to state 35
+    CMD_IF           go to state 36
+    E                go to state 37
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 193
+
+   24 NOMEVAR: ID '=' A OUTRAVAR .
+
+    $default  reduce using rule 24 (NOMEVAR)
+
+
+State 194
+
+   45 ELEMENTO: ',' A @7 . ELEMENTO
+
+    ','  shift, and go to state 155
+
+    $default  reduce using rule 46 (ELEMENTO)
+
+    ELEMENTO  go to state 204
+
+
+State 195
+
+   71 ARGs_FUNC2: ID $@12 . ',' ARGs_FUNC
+
+    ','  shift, and go to state 205
+
+
+State 196
+
+   58 DECLA_FUNC: '(' ID ')' '(' ARGs_FUNC2 ')' .
+
+    $default  reduce using rule 58 (DECLA_FUNC)
+
+
+State 197
+
+   76 PARAM: ',' A PARAM .
+
+    $default  reduce using rule 76 (PARAM)
+
+
+State 198
+
+   87 CMD_ELSE: ELSE CMD .
+
+    $default  reduce using rule 87 (CMD_ELSE)
+
+
+State 199
+
+   85 CMD_FOR: FOR '(' VARIAVEL ';' EBOOL ';' A . ')' CMD
+
+    ')'  shift, and go to state 206
+
+
+State 200
+
+   57 DECLA_FUNC: FUNCTION $@8 ID '(' ARGs_FUNC ')' '{' . CMDs '}'
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    IF                 shift, and go to state 7
+    FOR                shift, and go to state 8
+    RETURN             shift, and go to state 9
+    WHILE              shift, and go to state 10
+    FUNCTION           shift, and go to state 11
+    ABRE_PAR_SETA      shift, and go to state 12
+    LET                shift, and go to state 13
+    CONST              shift, and go to state 14
+    VAR                shift, and go to state 15
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    ';'                shift, and go to state 19
+    '{'                shift, and go to state 20
+    '['                shift, and go to state 21
+    '('                shift, and go to state 22
+
+    CMDs             go to state 207
+    CMD              go to state 24
+    BLOCO_CMDs       go to state 25
+    VARIAVEL         go to state 26
+    A                go to state 27
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    DECLA_FUNC       go to state 32
+    FUNC_ANON        go to state 33
+    CMD_WHILE        go to state 34
+    CMD_FOR          go to state 35
+    CMD_IF           go to state 36
+    E                go to state 37
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 201
+
+   64 ARGs_FUNC: ID $@10 ',' ARGs_FUNC .
+
+    $default  reduce using rule 64 (ARGs_FUNC)
+
+
+State 202
+
+   67 ARGs_FUNC: ID $@11 '=' F . ',' ARGs_FUNC
+
+    ','  shift, and go to state 208
+
+
+State 203
+
+   79 FUNC_ANON: FUNCTION $@13 '(' ARGs_FUNC ')' '{' CMDs . '}'
+
+    '}'  shift, and go to state 209
+
+
+State 204
+
+   45 ELEMENTO: ',' A @7 ELEMENTO .
+
+    $default  reduce using rule 45 (ELEMENTO)
+
+
+State 205
+
+   71 ARGs_FUNC2: ID $@12 ',' . ARGs_FUNC
+
+    ID  shift, and go to state 145
+
+    $default  reduce using rule 69 (ARGs_FUNC)
+
+    ARGs_FUNC  go to state 210
+
+
+State 206
+
+   85 CMD_FOR: FOR '(' VARIAVEL ';' EBOOL ';' A ')' . CMD
+
+    NUM                shift, and go to state 4
+    STRING             shift, and go to state 5
+    ID                 shift, and go to state 6
+    IF                 shift, and go to state 7
+    FOR                shift, and go to state 8
+    RETURN             shift, and go to state 9
+    WHILE              shift, and go to state 10
+    FUNCTION           shift, and go to state 11
+    ABRE_PAR_SETA      shift, and go to state 12
+    LET                shift, and go to state 13
+    CONST              shift, and go to state 14
+    VAR                shift, and go to state 15
+    BOOL               shift, and go to state 16
+    ABRE_CHAVES_ATRIB  shift, and go to state 17
+    '-'                shift, and go to state 18
+    ';'                shift, and go to state 19
+    '{'                shift, and go to state 20
+    '['                shift, and go to state 21
+    '('                shift, and go to state 22
+
+    CMD              go to state 211
+    BLOCO_CMDs       go to state 25
+    VARIAVEL         go to state 26
+    A                go to state 27
+    RVALUE           go to state 28
+    BLOCO_ATRIBUTOS  go to state 29
+    FUNC_SETA        go to state 30
+    ARGS_SETA        go to state 31
+    DECLA_FUNC       go to state 32
+    FUNC_ANON        go to state 33
+    CMD_WHILE        go to state 34
+    CMD_FOR          go to state 35
+    CMD_IF           go to state 36
+    E                go to state 37
+    LVALUE           go to state 38
+    F                go to state 39
+
+
+State 207
+
+   57 DECLA_FUNC: FUNCTION $@8 ID '(' ARGs_FUNC ')' '{' CMDs . '}'
+
+    '}'  shift, and go to state 212
+
+
+State 208
+
+   67 ARGs_FUNC: ID $@11 '=' F ',' . ARGs_FUNC
+
+    ID  shift, and go to state 145
+
+    $default  reduce using rule 69 (ARGs_FUNC)
+
+    ARGs_FUNC  go to state 213
+
+
+State 209
+
+   79 FUNC_ANON: FUNCTION $@13 '(' ARGs_FUNC ')' '{' CMDs '}' .
+
+    $default  reduce using rule 79 (FUNC_ANON)
+
+
+State 210
+
+   71 ARGs_FUNC2: ID $@12 ',' ARGs_FUNC .
+
+    $default  reduce using rule 71 (ARGs_FUNC2)
+
+
+State 211
+
+   85 CMD_FOR: FOR '(' VARIAVEL ';' EBOOL ';' A ')' CMD .
+
+    $default  reduce using rule 85 (CMD_FOR)
+
+
+State 212
+
+   57 DECLA_FUNC: FUNCTION $@8 ID '(' ARGs_FUNC ')' '{' CMDs '}' .
+
+    $default  reduce using rule 57 (DECLA_FUNC)
+
+
+State 213
+
+   67 ARGs_FUNC: ID $@11 '=' F ',' ARGs_FUNC .
+
+    $default  reduce using rule 67 (ARGs_FUNC)

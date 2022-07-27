@@ -1,13 +1,14 @@
-const a = 9;
 function log( msg ) {
   msg asm{println # undefined};
 }
 
-var c = [
-];
-(log)( c );
-{ let a = 3.1; }
-{ const a = 8;
-  let b = 7;
-  c = b; }
-c = c+ c++;
+function mdc( a = 36, b = 48 ) {
+  if( b == 0 )
+    return a;
+  else
+    return mdc( b, a%b );
+}
+
+log( mdc() );
+log( mdc( 18 ) );
+log( mdc( 15, 25 ) );

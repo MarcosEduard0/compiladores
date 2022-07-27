@@ -1579,9 +1579,15 @@ yyreduce:
     break;
 
   case 11:
+<<<<<<< HEAD
 #line 72 "mini_js.y"
                         { yyval.v = yyvsp[-2].v + yyvsp[-1].v + "^"; }
 #line 1585 "y.tab.c"
+=======
+#line 70 "mini_js.y"
+                        { yyval.v = yyvsp[-2].v + yyvsp[-1].v; }
+#line 1514 "y.tab.c"
+>>>>>>> baada99bb3174a358771811b731225735813755e
     break;
 
   case 12:
@@ -1591,9 +1597,21 @@ yyreduce:
     break;
 
   case 13:
+<<<<<<< HEAD
 #line 74 "mini_js.y"
                     { yyval.v.clear(); }
 #line 1597 "y.tab.c"
+=======
+#line 72 "mini_js.y"
+           {abrir_escopo();}
+#line 1526 "y.tab.c"
+    break;
+
+  case 14:
+#line 72 "mini_js.y"
+                                       {fechar_escopo();yyval.v.clear(); yyval.v = yyval.v + "<{" + yyvsp[-1].v + "}>";}
+#line 1532 "y.tab.c"
+>>>>>>> baada99bb3174a358771811b731225735813755e
     break;
 
   case 15:
@@ -1855,8 +1873,13 @@ yyreduce:
               fechar_escopo();
               string labelfunc = gera_label("LABELFUNCAO");
               yyval.v = yyvsp[-6].v + "&" + yyvsp[-6].v + "{}" + "=" + "'&funcao'" + labelfunc + "[=]" + "^";
+<<<<<<< HEAD
               funcoes = funcoes + (":"+labelfunc) + yyvsp[-4].v + yyvsp[-1].v + "undefined" + "@" + "'&retorno'" + "@" + "~"; }
 #line 1860 "y.tab.c"
+=======
+              funcoes = funcoes + (":"+labelfunc) + yyvsp[-4].v +  "arguments" + "@" + to_string(num_params) + "[@]" + "=" + "^" +yyvsp[-1].v +  "^"+ "undefined" + "@" + "'&retorno'" + "@" + "~";}
+#line 1657 "y.tab.c"
+>>>>>>> baada99bb3174a358771811b731225735813755e
     break;
 
   case 59:
@@ -2496,6 +2519,7 @@ int declarar_var(string nome)
   map<string,Variavel> escopo = escopos.back();
   if(escopo.count(nome) > 0 && escopo[nome].var_type == "let")
   {
+    cout <<"PORA"<<escopo[nome].var_type<<endl;
     cout << "Erro: a variável '" << nome << "' já foi declarada na linha " << escopo[nome].linha << "." << endl;
     exit(1);
     

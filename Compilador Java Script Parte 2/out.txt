@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 
 Erro: syntax error
 Perto de :','
 Linha: 5 Coluna: 21
+=======
+a & a 9 = ^ log & log {} = '&funcao' 72 [=] ^ c & c [] = ^ c @ 1 log @ $ <{ a & a 3.1 = ^ }> <{ a & a 8 = ^ b & b 7 = ^ c b @ = ^ }> c & c c @ c @ c c @ 1 + = ^ + = ^ . msg & msg arguments @ 0 [@] = ^ msg @ println # undefined ^ undefined @ '&retorno' @ ~ 
+>>>>>>> baada99bb3174a358771811b731225735813755e

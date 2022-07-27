@@ -72,8 +72,7 @@ CMD :   VARIAVEL ';'
     |   E ASM ';' 	{ $$.v = $1.v + $2.v + "^"; }
     |   RETURN E  ';'         { $$.v = $2.v + "'&retorno'" + "@" + "~";}
     |   ';'         { $$.v.clear(); } 
-    // |   '{'{abrir_escopo();} CMDs '}'  {fechar_escopo(); $$.v.clear(); $$.v = $$.v+ $3.v;}
-    |   BLOCO_CMDs
+    |   '{'{abrir_escopo();} CMDs '}'  {fechar_escopo();$$.v.clear(); $$.v = $$.v + "<{" + $3.v + "}>";}
     ;
 
 BLOCO_CMDs  :'{' { abrir_escopo(); } CMDs '}'  { fechar_escopo(); $$.v.clear(); $$.v = $$.v + "<{" + $3.v + "}>";}
@@ -374,6 +373,7 @@ int declarar_var(string nome)
   map<string,Variavel> escopo = escopos.back();
   if(escopo.count(nome) > 0 && escopo[nome].var_type == "let")
   {
+    cout <<"PORA"<<escopo[nome].var_type<<endl;
     cout << "Erro: a variável '" << nome << "' já foi declarada na linha " << escopo[nome].linha << "." << endl;
     exit(1);
     
